@@ -6,7 +6,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_BRACKET
 
   /* TODO: Add more token types */
 
@@ -21,9 +21,14 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
-  {" +", TK_NOTYPE},    // spaces
-  {"\\+", '+'},         // plus
-  {"==", TK_EQ},        // equal
+  {" +", TK_NOTYPE},		// spaces
+  {"\\(.*?\\)", TK_BRACKET},	// brackets
+  {"[0-9]+", TK_NUM},		// numbers
+  {"\\*", '*'},				// multiply
+  {"/", '/'},			// division
+  {"\\+", '+'},			    // plus
+  {"-", '-'},				// minus
+  {"==", TK_EQ},		    // equal
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -72,6 +77,10 @@ static bool make_token(char *e) {
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
+		int l;
+		for(l=position;l<position+substr_len;l++)
+			printf("%c",e[l]);
+		printf("\n");
         position += substr_len;
 
         /* TODO: Now a new token is recognized with rules[i]. Add codes
@@ -80,7 +89,7 @@ static bool make_token(char *e) {
          */
 
         switch (rules[i].token_type) {
-          default: TODO();
+          //default: TODO();
         }
 
         break;
@@ -104,7 +113,7 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  //TODO();
 
   return 0;
 }

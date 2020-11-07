@@ -1,6 +1,7 @@
 #include <isa.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdio.h>
 #include "local-include/reg.h"
 
 const char *regsl[] = {"eax", "ecx", "edx", "ebx", "esp", "ebp", "esi", "edi"};
@@ -42,6 +43,14 @@ void reg_test() {
 }
 
 void isa_reg_display() {
+  int reg_num = (sizeof(regsl)) / (sizeof(regsl[0])) + 1;
+  for (int i = 0; i < reg_num; i++)
+  {
+	if (i == reg_num - 1)
+	  printf("%-15s%-#30x%u\n","pc", cpu.pc, cpu.pc);
+	else
+	  printf("%-15s%-#30x%u\n", regsl[i], reg_l(i), reg_l(i));
+  }
 }
 
 word_t isa_reg_str2val(const char *s, bool *success) {

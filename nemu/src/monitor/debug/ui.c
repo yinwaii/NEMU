@@ -7,6 +7,7 @@
 #include <readline/history.h>
 
 void cpu_exec(uint64_t);
+word_t expr(char *,bool *);
 int is_batch_mode();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
@@ -37,6 +38,36 @@ static int cmd_q(char *args) {
   return -1;
 }
 
+static int cmd_si(char *args) {
+  int si_N = (args == NULL) ? 0 : atoi(args);
+  if (si_N <= 0)
+	cpu_exec(1);
+  else
+	cpu_exec(si_N);
+  return 0;
+}
+
+static int cmd_info(char *args) {
+  if (args != NULL)
+  {
+	char *subcmd = strtok(args, " ");
+	if (strcmp(subcmd, "r") == 0)
+	  isa_reg_display();
+	/*else if(strcmp(subcmd, "w") == 0)*/
+  }
+  return 0;
+}
+
+static int cmd_p(char *args) {
+  if (args != NULL)
+  {
+	bool *success = (bool *)malloc(1);
+	expr(args, success);
+	free(success);
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -47,6 +78,9 @@ static struct {
   { "help", "Display informations about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
+  { "si", "Let the program step through N instructions and then pause execution, and the default N is 1", cmd_si },
+  { "info", "Print the status of registers (info r) or monitoring points (info w)", cmd_info },
+  { "p", "Print the value of a expression", cmd_p }
 
   /* TODO: Add more commands */
 
@@ -59,14 +93,14 @@ static int cmd_help(char *args) {
   char *arg = strtok(NULL, " ");
   int i;
 
-  if (arg == NULL) {
+  if (arg == NULL) { 
     /* no argument given */
     for (i = 0; i < NR_CMD; i ++) {
       printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
     }
   }
-  else {
-    for (i = 0; i < NR_CMD; i ++) {
+  else { 
+    for (i = 0;  i < NR_CMD; i ++) {
       if (strcmp(arg, cmd_table[i].name) == 0) {
         printf("%s - %s\n", cmd_table[i].name, cmd_table[i].description);
         return 0;
@@ -90,7 +124,7 @@ void ui_mainloop() {
     char *cmd = strtok(str, " ");
     if (cmd == NULL) { continue; }
 
-    /* treat the remaining string as the arguments,
+    /* treat the r emaining string as the arguments,
      * which may need further parsing
      */
     char *args = cmd + strlen(cmd) + 1;
