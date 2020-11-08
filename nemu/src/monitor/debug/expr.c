@@ -7,19 +7,41 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_BRACKET_LEFT, TK_BRACKET_RIGHT
+  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_BRACKET_LEFT, TK_BRACKET_RIGHT, TK_OPP
 
   /* TODO: Add more token types */
 
 };
 
+enum {
+  VALUE_OP_VALUE, OP_VALUE, VALUE_OP
+};
+
+// Check the priority of a token.
 static int token_priority(int TOKEN) {
   switch (TOKEN) {
-	case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: return 10; break;
-	case '*': case '/': return 2; break;
-	case '+': case '-': return 1; break;
-	case TK_EQ: return 0; break;
+	case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: return 10;
+	case TK_OPP: return 3;
+	case '*': case '/': return 2;
+	case '+': case '-': return 1;
+	case TK_EQ: return 0;
 	default: return -1;
+  }
+}
+
+// Check the combination method of a token. 
+static bool token_right_comb(int TOKEN) {
+  switch (TOKEN) {
+	case TK_OPP: return true;
+	default: return false;
+  }
+}
+
+// Check the type of a token. 
+static int token_type(int TOKEN) {
+  switch (TOKEN) {
+	case TK_OPP: return OP_VALUE;
+	default: return VALUE_OP_VALUE; 
   }
 }
 
@@ -72,6 +94,17 @@ typedef struct token {
 static Token tokens[32] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
+static void check_operand(char *e, int position) {
+  if ((nr_token == 0 || (tokens[nr_token - 1].type != TK_NUM && tokens[nr_token - 1].type != TK_BRACKET_RIGHT)) && tokens[nr_token].type != TK_BRACKET_LEFT) {
+	// debug:
+	// printf("Left single operand found in %d.\n", nr_token);
+	switch(tokens[nr_token].type) {
+	  case '-': tokens[nr_token].type = TK_OPP; break;
+	  default: break;
+	}
+  }
+}
+
 static bool make_token(char *e) {
   int position = 0;
   int i;
@@ -104,6 +137,7 @@ static bool make_token(char *e) {
 			  panic("The expression is too long!");
 			tokens[nr_token].type = rules[i].token_type;
 			strcpy(tokens[nr_token].str, "");
+			check_operand(e, position);
 			nr_token++;
 			break;
 
@@ -159,7 +193,7 @@ static bool make_token(char *e) {
 
 static bool check_parentheses(int p, int q) {
   // debug:
-  printf("p:%d q:%d\n",p,q);
+  // printf("p:%d q:%d\n",p,q);
 
   // It can't be ().
   if (q <= p + 1)
@@ -217,43 +251,60 @@ static word_t eval (int p, int q) {
 	int main_op = -1;
 	// Find the main operator.
 	int parentheses_number = 0;
+	int check_priority = 0;
 	for (int i = p; i <= q; i++) {
 	  switch(tokens[i].type) {
-	    // Numbers are not main operators.
+	    // Numbers and brackets are not main operators.
 		case TK_NUM: continue; break;
 	    // Tokens in brackets are not main operators.
 		case TK_BRACKET_LEFT: parentheses_number++; break;
 		case TK_BRACKET_RIGHT: parentheses_number--; break;
 		default:
 		  // If the token has no more priority, swap it with main op)
-		  if(parentheses_number == 0 && (main_op == -1 || token_priority(tokens[i].type) <= token_priority(tokens[main_op].type)))
-		  {
-			// debug:
-			// printf("%c:%d %c:%d\n",tokens[i].type,token_priority(tokens[i].type),tokens[main_op].type,token_priority(tokens[main_op].type));
-			main_op = i;
+		  check_priority = token_priority(tokens[i].type)-token_priority(tokens[main_op].type);
+		  if (parentheses_number == 0) { 
+		    if (!token_right_comb(tokens[i].type)) {
+			  if(main_op == -1 || check_priority <= 0)
+			  {
+				// debug:
+				// printf("double operation: %c:%d <= %c:%d\n",tokens[i].type,token_priority(tokens[i].type),tokens[main_op].type,token_priority(tokens[main_op].type));
+				main_op = i;
+			  }
+			}
+			else {
+			  if(main_op == -1 || check_priority < 0)
+			  {
+				// debug:
+				// printf("single operation: %c:%d <= %c:%d\n",tokens[i].type,token_priority(tokens[i].type),tokens[main_op].type,token_priority(tokens[main_op].type));
+				main_op = i;
+			  }
+			}
+
 		  }
 	  }
 	}
-	bool single_operands = (p == main_op);
+	// Get the operands.
 	word_t val1 = 0;
-	if(single_operands == false) {
-	  printf("double operands!");
+	word_t val2 = 0;
+	if(token_type(tokens[main_op].type) != OP_VALUE) {
 	  val1 = eval(p, main_op - 1);
 	}
-	word_t val2 = eval(main_op + 1, q);
+	if(token_type(tokens[main_op].type) != VALUE_OP) {
+	  val2 = eval(main_op + 1, q);
+	}
 	// debug
-	// printf("%d %c %d\n",val1,tokens[main_op].type,val2);
+	// printf("Now we are evaluating %d %d %c %d\n", val1, tokens[main_op].type, tokens[main_op].type, val2);
 
+	// Evaluate the expression.
 	switch (tokens[main_op].type) {
-	  case '+': return val1 + val2;
-	  case '-': if(single_operands)
-				  return -val2;
-				else return val1 - val2;
-	  case '*': return val1 * val2;
+	  case '+': return (int)val1 + (int)val2;
+	  case TK_OPP: return -(int)val2;
+	  case '-': return (int)val1 - (int)val2;
+	  case '*': return (int)val1 * (int)val2;
 	  case '/': if(val2 == 0)
 				  panic("Divided by 0!");
-				else return val1 / val2;
-	  case TK_EQ: return val1 == val2;
+				else return (int)val1 / (int)val2;
+	  case TK_EQ: return (int)val1 == (int)val2;
 	  default: panic("Bad operators!");
 	}
   }
@@ -268,6 +319,7 @@ word_t expr(char *e, bool *success) {
   /* TODO: Insert codes to evaluate the expression. */
   // TODO();
   
+  *success = true;
   printf("%d\n",eval(0, nr_token - 1));
 
   return 0;
