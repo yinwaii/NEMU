@@ -44,6 +44,7 @@ void reg_test() {
 
 void isa_reg_display() {
   int reg_num = (sizeof(regsl)) / (sizeof(regsl[0])) + 1;
+  printf("The status of registers:\n");
   for (int i = 0; i < reg_num; i++)
   {
 	if (i == reg_num - 1)

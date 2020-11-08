@@ -52,7 +52,9 @@ static int cmd_info(char *args) {
   {
 	char *subcmd = strtok(args, " ");
 	if (strcmp(subcmd, "r") == 0)
+	{
 	  isa_reg_display();
+	}
 	/*else if(strcmp(subcmd, "w") == 0)*/
   }
   return 0;
@@ -62,7 +64,38 @@ static int cmd_p(char *args) {
   if (args != NULL)
   {
 	bool *success = (bool *)malloc(1);
-	expr(args, success);
+	if(strcmp(args, "test") == 0) {
+	  char file[3][30] = {"build/", "build/o", "build/n"};
+	  printf("Please input the file name (whose length should <= 10) of test data:\n");
+	  char base[11];
+	  scanf("%s", base);
+	  unsigned answer;
+	  char e[66666];
+	  FILE *fp = fopen(strcat(file[0], base), "r");
+	  FILE *flog = fopen(strcat(file[1], base), "w");
+	  FILE *fnp = fopen(strcat(file[2], base), "w");
+	  assert(fp != NULL);
+	  assert(flog != NULL);
+	  assert(fnp != NULL);
+	  int i = 0;
+	  while(fscanf(fp,"%u %[^\n]", &answer, e) > 0) {
+		i++;
+		unsigned result = expr(e, success);
+		if(result != answer) {
+		  fprintf(flog, "list: %d\nresult: %u answer: %u\nexpression:%s\n", i, result, answer, e);
+		  fprintf(fnp, "%u %s\n", answer, e);
+		}
+		// else
+		//   fprintf(flog, "list: %d checked\n", i);
+	  }
+	  fclose(fp);
+	  fclose(flog);
+	  fclose(fnp);
+	  printf("Test finished.\n");
+	}
+	else {
+	  printf("%u\n",expr(args, success));
+	}
 	free(success);
   }
   return 0;

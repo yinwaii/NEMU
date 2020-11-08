@@ -91,7 +91,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[66666] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static void check_operand(char *e, int position) {
@@ -133,7 +133,7 @@ static bool make_token(char *e) {
 
 		  case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: case '+': case '-': case '*': case '/': case TK_EQ: 
 			// Push the "real token" into tokens
-			if (nr_token + 1 >= 32)
+			if (nr_token + 1 >= 66666)
 			  panic("The expression is too long!");
 			tokens[nr_token].type = rules[i].token_type;
 			strcpy(tokens[nr_token].str, "");
@@ -161,7 +161,7 @@ static bool make_token(char *e) {
 			 */
 
 			// Push the numbers into tokens
-			if (nr_token + 1 >= 32)
+			if (nr_token + 1 >= 66666)
 			  panic("The expression is too long!");
 			tokens[nr_token].type = TK_NUM;
 			// The substring doesn't have a '\0'
@@ -301,8 +301,11 @@ static word_t eval (int p, int q) {
 	  case TK_OPP: return -(int)val2;
 	  case '-': return (int)val1 - (int)val2;
 	  case '*': return (int)val1 * (int)val2;
-	  case '/': if(val2 == 0)
-				  panic("Divided by 0!");
+	  case '/': if(val2 == 0) {
+				  // panic("Divided by 0!");
+				  printf("Divided by 0!\n");
+				  return 0;
+				}
 				else return (int)val1 / (int)val2;
 	  case TK_EQ: return (int)val1 == (int)val2;
 	  default: panic("Bad operators!");
@@ -320,7 +323,7 @@ word_t expr(char *e, bool *success) {
   // TODO();
   
   *success = true;
-  printf("%d\n",eval(0, nr_token - 1));
+  return eval(0, nr_token - 1);
 
   return 0;
 }
