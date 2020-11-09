@@ -1,5 +1,6 @@
 #include <isa.h>
 #include <stdlib.h>
+#include <memory/paddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -7,7 +8,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_BRACKET_LEFT, TK_BRACKET_RIGHT, TK_OPP
+  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_BRACKET_LEFT, TK_BRACKET_RIGHT, TK_OPP, TK_HEX, TK_REG, TK_IEQ, TK_AND, TK_DEREF
 
   /* TODO: Add more token types */
 
@@ -21,18 +22,19 @@ enum {
 static int token_priority(int TOKEN) {
   switch (TOKEN) {
 	case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: return 10;
-	case TK_OPP: return 3;
+	case TK_OPP: case TK_DEREF: return 4;
 	case '*': case '/': return 2;
 	case '+': case '-': return 1;
-	case TK_EQ: return 0;
-	default: return -1;
+	case TK_EQ: case TK_IEQ: return 0;
+	case TK_AND: return -1;
+	default: return -2;
   }
 }
 
 // Check the combination method of a token. 
 static bool token_right_comb(int TOKEN) {
   switch (TOKEN) {
-	case TK_OPP: return true;
+	case TK_OPP: case TK_DEREF: return true;
 	default: return false;
   }
 }
@@ -40,7 +42,7 @@ static bool token_right_comb(int TOKEN) {
 // Check the type of a token. 
 static int token_type(int TOKEN) {
   switch (TOKEN) {
-	case TK_OPP: return OP_VALUE;
+	case TK_OPP: case TK_DEREF: return OP_VALUE;
 	default: return VALUE_OP_VALUE; 
   }
 }
@@ -57,12 +59,16 @@ static struct rule {
   {" +", TK_NOTYPE},			// spaces
   {"\\(", TK_BRACKET_LEFT},		// left-bracket
   {"\\)", TK_BRACKET_RIGHT},	// right-bracket
+  {"0[xX][0123456789abcdefABCDEF]+", TK_HEX},		// hex
+  {"\\$[a-z]+", TK_REG},			// reg
   {"[0-9]+", TK_NUM},			// numbers
   {"\\*", '*'},					// multiply
   {"/", '/'},					// division
   {"\\+", '+'},					// plus
   {"-", '-'},					// minus
   {"==", TK_EQ},			    // equal
+  {"!=", TK_IEQ},				// inequal
+  {"&&", TK_AND},				// and
 };
 
 #define NR_REGEX (sizeof(rules) / sizeof(rules[0]) )
@@ -95,11 +101,12 @@ static Token tokens[66666] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static void check_operand(char *e, int position) {
-  if ((nr_token == 0 || (tokens[nr_token - 1].type != TK_NUM && tokens[nr_token - 1].type != TK_BRACKET_RIGHT)) && tokens[nr_token].type != TK_BRACKET_LEFT) {
+  if ((nr_token == 0 || (tokens[nr_token - 1].type != TK_NUM && tokens[nr_token - 1].type != TK_REG && tokens[nr_token - 1].type != TK_HEX && tokens[nr_token - 1].type != TK_BRACKET_RIGHT)) && tokens[nr_token].type != TK_BRACKET_LEFT) {
 	// debug:
 	// printf("Left single operand found in %d.\n", nr_token);
 	switch(tokens[nr_token].type) {
 	  case '-': tokens[nr_token].type = TK_OPP; break;
+	  case '*': tokens[nr_token].type = TK_DEREF; break;
 	  default: break;
 	}
   }
@@ -131,7 +138,7 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
 
-		  case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: case '+': case '-': case '*': case '/': case TK_EQ: 
+		  case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: case '+': case '-': case '*': case '/': case TK_EQ: case TK_IEQ: case TK_AND:
 			// Push the "real token" into tokens
 			if (nr_token + 1 >= 66666)
 			  panic("The expression is too long!");
@@ -141,7 +148,7 @@ static bool make_token(char *e) {
 			nr_token++;
 			break;
 
-		  case TK_NUM:
+		  case TK_NUM: case TK_HEX: case TK_REG:
 			// When the number can't be put into int
 			if(substr_len > 31)
 			  panic("The number is too big!");
@@ -163,7 +170,7 @@ static bool make_token(char *e) {
 			// Push the numbers into tokens
 			if (nr_token + 1 >= 66666)
 			  panic("The expression is too long!");
-			tokens[nr_token].type = TK_NUM;
+			tokens[nr_token].type = rules[i].token_type;
 			// The substring doesn't have a '\0'
 			strncpy(tokens[nr_token].str, substr_start, substr_len);
 			tokens[nr_token].str[substr_len] = '\0';
@@ -239,7 +246,23 @@ static word_t eval (int p, int q) {
 	/* Single token.
 	 * And the token must be a number.
 	 */
-	return atoi(tokens[p].str);
+	unsigned tmp;
+	bool *success = (bool *)malloc(1);
+	switch (tokens[p].type) {
+	  case TK_HEX: 
+		free(success);
+		sscanf(tokens[p].str, "%x", &tmp);
+		return tmp;
+	  case TK_NUM:
+		free(success);
+	   	return atoi(tokens[p].str);
+	  case TK_REG:
+		tmp = isa_reg_str2val(tokens[p].str + 1, success);
+		free(success);
+		return tmp;
+	  default:
+		panic("Bad number!");
+	}
   }
   else if (check_parentheses(p, q) == true) {
 	/* The expression is surrounded by a matched pair of parentheses.
@@ -255,7 +278,7 @@ static word_t eval (int p, int q) {
 	for (int i = p; i <= q; i++) {
 	  switch(tokens[i].type) {
 	    // Numbers and brackets are not main operators.
-		case TK_NUM: continue; break;
+		case TK_NUM: case TK_HEX: case TK_REG: continue; break;
 	    // Tokens in brackets are not main operators.
 		case TK_BRACKET_LEFT: parentheses_number++; break;
 		case TK_BRACKET_RIGHT: parentheses_number--; break;
@@ -302,12 +325,15 @@ static word_t eval (int p, int q) {
 	  case '-': return (int)val1 - (int)val2;
 	  case '*': return (int)val1 * (int)val2;
 	  case '/': if(val2 == 0) {
-				  // panic("Divided by 0!");
-				  printf("Divided by 0!\n");
-				  return 0;
+				  panic("Divided by 0!");
+				  // printf("Divided by 0!\n");
+				  // return 0;
 				}
 				else return (int)val1 / (int)val2;
 	  case TK_EQ: return (int)val1 == (int)val2;
+	  case TK_IEQ: return (int)val1 != (int)val2;
+	  case TK_AND: return (int)val1 && (int)val2;
+	  case TK_DEREF: return paddr_read(val2, 4);
 	  default: panic("Bad operators!");
 	}
   }

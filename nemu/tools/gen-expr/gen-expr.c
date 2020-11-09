@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
     assert(fp != NULL);
 
     int result;
-    fscanf(fp, "%d", &result);
+    fscanf(fp, "%u", &result);
     pclose(fp);
 
 	printf("%u %s\n", result, buf);

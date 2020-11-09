@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/paddr.h>
 
 void cpu_exec(uint64_t);
 word_t expr(char *,bool *);
@@ -94,9 +95,26 @@ static int cmd_p(char *args) {
 	  printf("Test finished.\n");
 	}
 	else {
-	  printf("%u\n",expr(args, success));
+	  unsigned result = expr(args, success);
+	  printf("dec: %d\nhex: %#x\n", result, result);
 	}
 	free(success);
+  }
+  return 0;
+}
+
+static int cmd_x(char *args)
+{
+  int N;
+  bool *success = (bool *)malloc(1);
+  strtok(args, " ");
+  N = atoi(args);
+  args += strlen(args) + 1;
+  unsigned result = expr(args, success);
+  printf("%-10s%-15s%-10s\n", "Address", "Value(dec)", "Value(hex)");
+  unsigned value = paddr_read(result + N, 4);
+  for (int i = 0; i < N; i++) {
+	printf("%-10x%-15d%#-10x\n", result + i, value, value);
   }
   return 0;
 }
@@ -113,7 +131,8 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Let the program step through N instructions and then pause execution, and the default N is 1", cmd_si },
   { "info", "Print the status of registers (info r) or monitoring points (info w)", cmd_info },
-  { "p", "Print the value of a expression", cmd_p }
+  { "p", "Print the value of a expression", cmd_p },
+  { "x", "Get the value of a expression, use the result as the starting memory address, and output N consecutive 4 bytes in hexadecimical form", cmd_x}
 
   /* TODO: Add more commands */
 
