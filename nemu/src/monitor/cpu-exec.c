@@ -3,6 +3,8 @@
 #include <monitor/difftest.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "debug/watchpoint.h"
+#include "debug/expr.h"
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -89,6 +91,20 @@ void cpu_exec(uint64_t n) {
     asm_print(this_pc, seq_pc - this_pc, n < MAX_INSTR_TO_PRINT);
 
     /* TODO: check watchpoints here. */
+	WP *wp_tmp = get_wp_head();
+	bool *wp_success = (bool *)malloc(1);
+	for(;wp_tmp != NULL; wp_tmp = wp_tmp->next)
+	{
+	  unsigned tmp_value = expr(wp_tmp->expr, wp_success);
+	  if(tmp_value != wp_tmp->tmp_value) {
+		nemu_state.state = NEMU_STOP;
+		printf("The watchpoint %d ( %s ) has been changed from %u to %u, by hex from %#x to %#x.\n", wp_tmp->NO, wp_tmp->expr, wp_tmp->tmp_value, tmp_value, wp_tmp->tmp_value, tmp_value);
+		wp_tmp->tmp_value = tmp_value;
+		return;
+	  }
+	}
+	free(wp_success);
+
 #endif
 
 #ifdef HAS_IOE

@@ -56,7 +56,16 @@ static int cmd_info(char *args) {
 	{
 	  isa_reg_display();
 	}
-	/*else if(strcmp(subcmd, "w") == 0)*/
+	else if(strcmp(subcmd, "w") == 0)
+	{
+	  if(get_wp_head() == NULL) {
+		printf("There is no watchpoint yet!\n");
+		return 0;
+	  }
+	  printf("%-5s%-20s%-20s%-20s\n","ID", "Expression", "Value(dec)", "Value(hex)");
+	  for (WP *tmp = get_wp_head(); tmp != NULL; tmp = tmp->next)
+		printf("%-5d%-20s%-20d%#-20x\n", tmp->NO, tmp->expr, tmp->tmp_value, tmp->tmp_value);
+	}
   }
   return 0;
 }
@@ -119,6 +128,29 @@ static int cmd_x(char *args)
   return 0;
 }
 
+static int cmd_w(char *args)
+{
+  WP* tmp = new_wp();
+  strcpy(tmp->expr, args);
+  bool *success = (bool *)malloc(1);
+  tmp->tmp_value = expr(args, success);
+  free(success);
+  return 0;
+}
+
+static int cmd_d(char *args)
+{
+  int N = 0;
+  sscanf(args, "%d", &N);
+  WP *tmp = get_wp_head();
+  assert(tmp != NULL);
+  for(; tmp != NULL && tmp->NO != N; tmp = tmp->next)
+	;
+  assert(tmp != NULL);
+  free_wp(tmp);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -132,7 +164,9 @@ static struct {
   { "si", "Let the program step through N instructions and then pause execution, and the default N is 1", cmd_si },
   { "info", "Print the status of registers (info r) or monitoring points (info w)", cmd_info },
   { "p", "Print the value of a expression", cmd_p },
-  { "x", "Get the value of a expression, use the result as the starting memory address, and output N consecutive 4 bytes in hexadecimical form", cmd_x}
+  { "x", "Get the value of a expression, use the result as the starting memory address, and output N consecutive 4 bytes in hexadecimical form", cmd_x},
+  { "w", "Set the watchpoint, when the values of watchpoints are changed, the system will pause", cmd_w},
+  { "d", "Delete the watchpoint whose id is N", cmd_d}
 
   /* TODO: Add more commands */
 

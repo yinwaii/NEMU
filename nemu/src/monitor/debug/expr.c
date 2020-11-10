@@ -7,6 +7,8 @@
  */
 #include <regex.h>
 
+#define EXPR_MAX_LENGTH 3000
+
 enum {
   TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_BRACKET_LEFT, TK_BRACKET_RIGHT, TK_OPP, TK_HEX, TK_REG, TK_IEQ, TK_AND, TK_DEREF
 
@@ -97,7 +99,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[66666] __attribute__((used)) = {};
+static Token tokens[EXPR_MAX_LENGTH] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static void check_operand(char *e, int position) {
@@ -140,7 +142,7 @@ static bool make_token(char *e) {
 
 		  case TK_BRACKET_LEFT: case TK_BRACKET_RIGHT: case '+': case '-': case '*': case '/': case TK_EQ: case TK_IEQ: case TK_AND:
 			// Push the "real token" into tokens
-			if (nr_token + 1 >= 66666)
+			if (nr_token + 1 >= EXPR_MAX_LENGTH)
 			  panic("The expression is too long!");
 			tokens[nr_token].type = rules[i].token_type;
 			strcpy(tokens[nr_token].str, "");
@@ -168,7 +170,7 @@ static bool make_token(char *e) {
 			 */
 
 			// Push the numbers into tokens
-			if (nr_token + 1 >= 66666)
+			if (nr_token + 1 >= EXPR_MAX_LENGTH)
 			  panic("The expression is too long!");
 			tokens[nr_token].type = rules[i].token_type;
 			// The substring doesn't have a '\0'
