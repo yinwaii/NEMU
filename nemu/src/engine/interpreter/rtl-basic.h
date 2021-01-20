@@ -84,14 +84,17 @@ static inline def_rtl(idiv64_r, rtlreg_t* dest,
 
 // memory
 
+// copy the content of offset to dest
 static inline def_rtl(lm, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
   *dest = vaddr_read(*addr + offset, len);
 }
 
+// write the content of src to offset
 static inline def_rtl(sm, const rtlreg_t* addr, word_t offset, const rtlreg_t* src1, int len) {
   vaddr_write(*addr + offset, *src1, len);
 }
 
+// copy the content of offset to dest by the given len
 static inline def_rtl(lms, rtlreg_t *dest, const rtlreg_t* addr, word_t offset, int len) {
   word_t val = vaddr_read(*addr + offset, len);
   switch (len) {
