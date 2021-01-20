@@ -8,6 +8,7 @@
 /* RTL pseudo instructions */
 
 static inline def_rtl(li, rtlreg_t* dest, const rtlreg_t imm) {
+  // dest <- imm
   rtl_addi(s, dest, rz, imm);
 }
 
@@ -17,27 +18,40 @@ static inline def_rtl(mv, rtlreg_t* dest, const rtlreg_t *src1) {
 
 static inline def_rtl(not, rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- ~src1
-  TODO();
+  rtl_not(s, dest, src1);
+  // TODO();
 }
 
 static inline def_rtl(neg, rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- -src1
-  TODO();
+  rtl_sub(s, dest, rz, src1);
+  // TODO();
 }
 
 static inline def_rtl(sext, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
-  TODO();
+  const rtlreg_t self = (1 << (width * 8)) - 1;
+  const rtlreg_t sign = 1 << (width * 8 - 1);
+  if ((sign & *src1) == 0)
+    *dest = self & *src1;
+  else
+    *dest = ~self + (self & *src1);
+  // TODO();
 }
 
 static inline def_rtl(zext, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- zeroext(src1[(width * 8 - 1) .. 0])
-  TODO();
+  const rtlreg_t self = (1 << (width * 8)) - 1;
+  *dest = self & *src1;
+  // TODO();
 }
 
 static inline def_rtl(msb, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- src1[width * 8 - 1]
-  TODO();
+  const rtlreg_t self = (1 << (width * 8)) - 1;
+  *dest = self & *src1;
+  // FIXME
+  // TODO();
 }
 
 #endif
