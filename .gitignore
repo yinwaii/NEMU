@@ -9,7 +9,7 @@
 !README.md
 !.gitignore
 !init.sh
-# /fceux-am
-# /am-kernels
+!/fceux-am/*
+!/am-kernels/*
 /.vscode
 /.devcontainer
