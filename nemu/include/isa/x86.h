@@ -35,6 +35,9 @@ union {
 	};
 };
   vaddr_t pc;
+  struct{
+    rtlreg_t CF, ZF, SF, IF, OF;
+  }eflags;
 } x86_CPU_state;
 
 // decode
