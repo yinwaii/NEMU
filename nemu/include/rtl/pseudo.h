@@ -30,7 +30,7 @@ static inline def_rtl(neg, rtlreg_t *dest, const rtlreg_t* src1) {
 
 static inline def_rtl(sext, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- signext(src1[(width * 8 - 1) .. 0])
-  const rtlreg_t self = (1 << (width * 8)) - 1;
+  const rtlreg_t self = (width < 4) ? ((1 << (width * 8)) - 1) : 0xffffffff;
   const rtlreg_t sign = 1 << (width * 8 - 1);
   if ((sign & *src1) == 0)
     *dest = self & *src1;
@@ -41,14 +41,14 @@ static inline def_rtl(sext, rtlreg_t* dest, const rtlreg_t* src1, int width) {
 
 static inline def_rtl(zext, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- zeroext(src1[(width * 8 - 1) .. 0])
-  const rtlreg_t self = (1 << (width * 8)) - 1;
+  const rtlreg_t self = (width < 4) ? ((1 << (width * 8)) - 1) : 0xffffffff;
   *dest = self & *src1;
   // TODO();
 }
 
 static inline def_rtl(msb, rtlreg_t* dest, const rtlreg_t* src1, int width) {
   // dest <- src1[width * 8 - 1]
-  const rtlreg_t self = (1 << (width * 8)) - 1;
+  const rtlreg_t self = (width < 4) ? ((1 << (width * 8)) - 1) : 0xffffffff;
   *dest = self & *src1;
   // FIXME
   // TODO();

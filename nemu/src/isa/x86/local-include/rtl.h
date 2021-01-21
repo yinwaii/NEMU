@@ -52,7 +52,7 @@ static inline def_rtl(is_sub_overflow, rtlreg_t* dest,
 }
 
 static inline def_rtl(is_sub_carry, rtlreg_t* dest,
-    const rtlreg_t* src1, const rtlreg_t* src2) {
+    const rtlreg_t* res, const rtlreg_t* src1) {
   // dest <- is_carry(src1 - src2)
   rtl_setrelop(s, RELOP_LTU, dest, src1, res);
   // TODO();
@@ -78,10 +78,10 @@ static inline def_rtl(is_add_carry, rtlreg_t* dest,
 
 #define def_rtl_setget_eflags(f) \
   static inline def_rtl(concat(set_, f), const rtlreg_t* src) { \
-    concat(cpu.eflags., f) = *src \
+    cpu.eflags.f = *src; \
   } \
   static inline def_rtl(concat(get_, f), rtlreg_t* dest) { \
-    *dest = concat(cpu.eflags., f) \
+    *dest = cpu.eflags.f; \
   }
 
 def_rtl_setget_eflags(CF)
@@ -91,7 +91,7 @@ def_rtl_setget_eflags(SF)
 
 static inline def_rtl(update_ZF, const rtlreg_t* result, int width) {
   // eflags.ZF <- is_zero(result[width * 8 - 1 .. 0])
-  const rtlreg_t self = (1 << (width * 8)) - 1;
+  const rtlreg_t self = (width < 4) ? ((1 << (width * 8)) - 1) : 0xffffffff;
   if ((*result & self) == 0)
     cpu.eflags.ZF = 1;
   else
