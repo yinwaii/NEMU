@@ -35,9 +35,29 @@ union {
 	};
 };
   vaddr_t pc;
-  struct{
-    rtlreg_t CF, ZF, SF, IF, OF;
-  }eflags;
+  union{
+    struct {
+      word_t CF : 1;
+      unsigned : 1;
+      word_t PF : 1;
+      unsigned : 1;
+      word_t AF : 1;
+      unsigned : 1;
+      word_t ZF : 1;
+      word_t SF : 1;
+      word_t TF : 1;
+      word_t IF : 1;
+      word_t DF : 1;
+      word_t OF : 1;
+      word_t IOPL : 1;
+      word_t NT : 1;
+      unsigned : 1;
+      word_t RF : 1;
+      word_t VM : 1;
+      unsigned : 15;
+    };
+    word_t val;
+  } eflags;
 } x86_CPU_state;
 
 // decode
