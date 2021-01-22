@@ -1,23 +1,61 @@
 #include "cc.h"
 
 static inline def_EHelper(add) {
-  TODO();
+  rtl_add(s, s0, ddest, dsrc1);
+  rtl_is_add_carry(s, s1, s0, ddest);
+  rtl_set_CF(s, s1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_is_add_overflow(s, s1, s0, ddest, dsrc1, id_dest->width);
+  rtl_set_OF(s, s1);
+  // rtl_mv(s, ddest, s0);
+  operand_write(s, id_dest, s0);
+  // TODO();
   print_asm_template2(add);
 }
 
 static inline def_EHelper(sub) {
-  rtl_sub(s, ddest, ddest, dsrc1);
+  if(id_src1->width == 1 && id_dest->width > 1)
+    rtl_sext(s, dsrc1, dsrc1, id_src1->width);
+  rtl_sub(s, s0, ddest, dsrc1);
+  // Log("%#.8x - %#.8x = %#.8x, width = %d", *ddest, *dsrc1, *s0, id_dest->width);
+  // Log("CF: %d, ZF: %d, SF: %d, OF: %d", cpu.eflags.CF, cpu.eflags.ZF, cpu.eflags.SF, cpu.eflags.OF);
+  rtl_is_sub_carry(s, s1, s0, ddest);
+  rtl_set_CF(s, s1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_is_sub_overflow(s, s1, s0, ddest, dsrc1, id_dest->width);
+  rtl_set_OF(s, s1);
+  // rtl_mv(s, ddest, s0);
+  operand_write(s, id_dest, s0);
+  // Log("CF: %d, ZF: %d, SF: %d, OF: %d", cpu.eflags.CF, cpu.eflags.ZF, cpu.eflags.SF, cpu.eflags.OF);
   // TODO();
   print_asm_template2(sub);
 }
 
 static inline def_EHelper(cmp) {
-  TODO();
+  rtl_sext(s, dsrc1, dsrc1, id_src1->width);
+  rtl_sub(s, s0, ddest, dsrc1);
+  rtl_is_sub_carry(s, s1, s0, ddest);
+  rtl_set_CF(s, s1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_is_sub_overflow(s, s1, s0, ddest, dsrc1, id_dest->width);
+  rtl_set_OF(s, s1);
+  // TODO();
   print_asm_template2(cmp);
 }
 
 static inline def_EHelper(inc) {
-  TODO();
+  // Log("Before inc: %#.8x, memory: %#.8x", *ddest, vaddr_read(cpu.ebp - 0x1c, 4));
+  // Log("ddest address: %#.8lx, memory address: %#.8lx", (uint64_t)ddest, (uint64_t)(cpu.ebp - 0x1c));
+  rtl_addi(s, s0, ddest, 1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  const rtlreg_t one = 1;
+  rtl_is_add_overflow(s, s1, s0, ddest, &one, id_dest->width);
+  rtl_set_OF(s, s1);
+  // rtl_mv(s, ddest, s0);
+  // ????????
+  operand_write(s, id_dest, s0);
+  // Log("After inc: %#.8x, memory: %#.8x", *ddest, vaddr_read(cpu.ebp - 0x1c, 4));
+  // TODO();
   print_asm_template1(inc);
 }
 

@@ -6,14 +6,23 @@ static inline def_EHelper(test) {
 }
 
 static inline def_EHelper(and) {
-  TODO();
+  rtl_and(s, s0, ddest, dsrc1);
+  rtl_set_CF(s, rz);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_set_OF(s, rz);
+  // rtl_mv(s, ddest, s0);
+  operand_write(s, id_dest, s0);
+  // TODO();
   print_asm_template2(and);
 }
 
 static inline def_EHelper(xor) {
-  rtl_xor(s, ddest, ddest, dsrc1);
+  rtl_xor(s, s0, ddest, dsrc1);
   rtl_set_CF(s, rz);
+  rtl_update_ZFSF(s, s0, id_dest->width);
   rtl_set_OF(s, rz);
+  // rtl_mv(s, ddest, s0);
+  operand_write(s, id_dest, s0);
   // TODO();
   print_asm_template2(xor);
 }
@@ -48,9 +57,11 @@ static inline def_EHelper(shr) {
 
 
 static inline def_EHelper(setcc) {
+  // Log("%#.8x", cpu.edx);
   uint32_t cc = s->opcode & 0xf;
   rtl_setcc(s, ddest, cc);
   operand_write(s, id_dest, ddest);
+  // Log("%#.8x", cpu.edx);
 
   print_asm("set%s %s", get_cc_name(cc), id_dest->str);
 }

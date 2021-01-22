@@ -1,5 +1,7 @@
 static inline def_EHelper(mov) {
+  // Log("Before mov: dest: %#.8x src1: %#.8x", *ddest, *dsrc1);
   operand_write(s, id_dest, dsrc1);
+  // Log("After mov: dest: %#.8x src1: %#.8x", *ddest, *dsrc1);
   print_asm_template2(mov);
 }
 
@@ -25,7 +27,9 @@ static inline def_EHelper(popa) {
 }
 
 static inline def_EHelper(leave) {
-  TODO();
+  rtl_mv(s, &cpu.esp, &cpu.ebp);
+  rtl_pop(s, &cpu.ebp);
+  // TODO();
   print_asm("leave");
 }
 
@@ -57,8 +61,11 @@ static inline def_EHelper(movsx) {
 }
 
 static inline def_EHelper(movzx) {
+  // Log("%#.8x", cpu.edx);
   id_dest->width = s->isa.is_operand_size_16 ? 2 : 4;
+  // rtl_zext(s, ddest, dsrc1, id_src1->width);
   operand_write(s, id_dest, dsrc1);
+  // Log("%#.8x", cpu.edx);
   print_asm_template2(movzx);
 }
 
