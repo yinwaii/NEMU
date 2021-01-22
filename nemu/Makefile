@@ -26,7 +26,8 @@ LD_LIBS = -lSDL2 -lreadline -ldl
 endif
 
 ifndef SHARE
-DIFF ?= kvm
+# DIFF ?= kvm
+DIFF ?= qemu
 ifneq ($(ISA),x86)
 ifeq ($(DIFF),kvm)
 DIFF = qemu
