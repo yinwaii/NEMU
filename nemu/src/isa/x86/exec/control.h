@@ -32,7 +32,7 @@ static inline def_EHelper(call) {
   // }
   // else
   // {
-    rtl_push(s, &cpu.pc);
+    rtl_push(s, &s->seq_pc);
     rtl_j(s, s->jmp_pc);
   // }
   // TODO();
@@ -40,7 +40,10 @@ static inline def_EHelper(call) {
 }
 
 static inline def_EHelper(ret) {
-  TODO();
+  rtl_pop(s, &cpu.pc);
+  // Log("%x", cpu.pc);
+  rtl_j(s, cpu.pc);
+  // TODO();
   print_asm("ret");
 }
 
