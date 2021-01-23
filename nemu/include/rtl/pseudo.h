@@ -18,7 +18,8 @@ static inline def_rtl(mv, rtlreg_t* dest, const rtlreg_t *src1) {
 
 static inline def_rtl(not, rtlreg_t *dest, const rtlreg_t* src1) {
   // dest <- ~src1
-  rtl_not(s, dest, src1);
+  const rtlreg_t full = 0xffffffff;
+  rtl_xor(s, dest, src1, &full);
   // TODO();
 }
 

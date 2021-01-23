@@ -12,7 +12,8 @@ static inline def_EHelper(push) {
 }
 
 static inline def_EHelper(pop) {
-  TODO();
+  rtl_pop(s, ddest);
+  // TODO();
   print_asm_template1(pop);
 }
 
@@ -35,10 +36,18 @@ static inline def_EHelper(leave) {
 
 static inline def_EHelper(cltd) {
   if (s->isa.is_operand_size_16) {
-    TODO();
+    rtl_lr(s, s0, R_AX, 2);
+    rtl_sext(s, s0, s0, 2);
+    rtl_sari(s, s0, s0, 16);
+    rtl_sr(s, R_DX, s0, 2);
+    // TODO();
   }
   else {
-    TODO();
+    rtl_lr(s, s0, R_EAX, 4);
+    rtl_sari(s, s0, s0, 31);
+    rtl_sari(s, s0, s0, 1);
+    rtl_sr(s, R_EDX, s0, 4);
+    // TODO();
   }
   print_asm(s->isa.is_operand_size_16 ? "cwtl" : "cltd");
 }
@@ -54,9 +63,11 @@ static inline def_EHelper(cwtl) {
 }
 
 static inline def_EHelper(movsx) {
+  // Log("Before mov: dest: %#.8x src1: %#.8x", *ddest, *dsrc1);
   id_dest->width = s->isa.is_operand_size_16 ? 2 : 4;
   rtl_sext(s, ddest, dsrc1, id_src1->width);
   operand_write(s, id_dest, ddest);
+  // Log("After mov: dest: %#.8x src1: %#.8x", *ddest, *dsrc1);
   print_asm_template2(movsx);
 }
 
