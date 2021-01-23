@@ -167,8 +167,10 @@ static inline def_DHelper(I2r) {
 }
 
 static inline def_DHelper(mov_I2r) {
+  // Log("Before read: dest: %#.8x src1: %#.8x", *ddest, *dsrc1);
   decode_op_r(s, id_dest, false);
   decode_op_I(s, id_src1, true);
+  // Log("After read: dest: %#.8x src1: %#.8x", *ddest, *dsrc1);
 }
 
 /* used by unary operations */

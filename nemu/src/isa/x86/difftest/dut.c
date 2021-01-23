@@ -12,7 +12,7 @@
   else
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  // Log("QEMU: %#.8x NEMU: %#.8x", ref_r->ebp, cpu.ebp);
+  // Log("QEMU: %#.8x NEMU: %#.8x", ref_r->eax, cpu.eax);
   check_register(eax)
   check_register(ecx)
   check_register(edx)

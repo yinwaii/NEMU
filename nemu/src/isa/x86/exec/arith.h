@@ -60,7 +60,13 @@ static inline def_EHelper(inc) {
 }
 
 static inline def_EHelper(dec) {
-  TODO();
+  rtl_subi(s, s0, ddest, 1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  const rtlreg_t one = 1;
+  rtl_is_sub_overflow(s, s1, s0, ddest, &one, id_dest->width);
+  rtl_set_OF(s, s1);
+  operand_write(s, id_dest, s0);
+  // TODO();
   print_asm_template1(dec);
 }
 

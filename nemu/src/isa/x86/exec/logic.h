@@ -1,7 +1,11 @@
 #include "cc.h"
 
 static inline def_EHelper(test) {
-  TODO();
+  rtl_and(s, s0, ddest, dsrc1);
+  rtl_set_CF(s, rz);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_set_OF(s, rz);
+  // TODO();
   print_asm_template2(test);
 }
 
@@ -28,29 +32,48 @@ static inline def_EHelper(xor) {
 }
 
 static inline def_EHelper(or) {
-  TODO();
+  // Log("Now is %#.8x, next is %#.8x, jmp is %#.8x", cpu.pc, s->seq_pc, s->jmp_pc);
+  rtl_or(s, s0, ddest, dsrc1);
+  rtl_set_CF(s, rz);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  rtl_set_OF(s, rz);
+  // rtl_mv(s, ddest, s0);
+  operand_write(s, id_dest, s0);
+  // TODO();
   print_asm_template2(or);
 }
 
 static inline def_EHelper(not) {
-  TODO();
+  rtl_not(s, s0, ddest);
+  // Log("not %#.8x = %#.8x", *ddest, *s0);
+  operand_write(s, id_dest, s0);
+  // TODO();
   print_asm_template1(not);
 }
 
 static inline def_EHelper(sar) {
-  TODO();
+  rtl_sar(s, s0, ddest, dsrc1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  operand_write(s, id_dest, s0);
+  // TODO();
   // unnecessary to update CF and OF in NEMU
   print_asm_template2(sar);
 }
 
 static inline def_EHelper(shl) {
-  TODO();
+  rtl_shl(s, s0, ddest, dsrc1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  operand_write(s, id_dest, s0);
+  // TODO();
   // unnecessary to update CF and OF in NEMU
   print_asm_template2(shl);
 }
 
 static inline def_EHelper(shr) {
-  TODO();
+  rtl_shr(s, s0, ddest, dsrc1);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  operand_write(s, id_dest, s0);
+  // TODO();
   // unnecessary to update CF and OF in NEMU
   print_asm_template2(shr);
 }
