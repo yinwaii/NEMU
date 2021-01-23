@@ -71,7 +71,18 @@ static inline def_EHelper(dec) {
 }
 
 static inline def_EHelper(neg) {
-  TODO();
+  const rtlreg_t one = 1;
+  if (*ddest == 0)
+    rtl_set_CF(s, rz);
+  else
+    rtl_set_CF(s, &one);
+  rtl_neg(s, s0, ddest);
+  rtl_update_ZFSF(s, s0, id_dest->width);
+  if (*ddest == 0x80000000)
+    rtl_set_OF(s, &one);
+  else
+    rtl_set_OF(s, rz);
+  // TODO();
   print_asm_template1(neg);
 }
 
