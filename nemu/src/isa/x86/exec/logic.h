@@ -76,9 +76,11 @@ static inline def_EHelper(shl) {
 }
 
 static inline def_EHelper(shr) {
+  // Log("Before shr: %#.8x", cpu.ebx);
   rtl_shr(s, s0, ddest, dsrc1);
   rtl_update_ZFSF(s, s0, id_dest->width);
   operand_write(s, id_dest, s0);
+  // Log("After shr: %#.8x", cpu.ebx);
   // TODO();
   // unnecessary to update CF and OF in NEMU
   print_asm_template2(shr);

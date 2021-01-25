@@ -19,10 +19,10 @@
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   // Log("QEMU: %#.8x NEMU: %#.8x, when pc is %#.8x", ref_r->ebp, cpu.ebp, cpu.pc);
   // Log("QEMU: %#.8x NEMU: %#.8x, when pc is %#.8x", ref_r->eax, cpu.eax, cpu.pc);
-  inno_register(eflags.CF)
-  inno_register(eflags.ZF)
-  inno_register(eflags.SF)
-  inno_register(eflags.OF)
+  // inno_register(eflags.CF)
+  // inno_register(eflags.ZF)
+  // inno_register(eflags.SF)
+  // inno_register(eflags.OF)
   check_register(eax)
   check_register(ecx)
   check_register(edx)
