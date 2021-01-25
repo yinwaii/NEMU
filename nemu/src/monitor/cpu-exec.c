@@ -98,9 +98,9 @@ void cpu_exec(uint64_t n) {
 	  unsigned tmp_value = expr(wp_tmp->expr, wp_success);
 	  if(tmp_value != wp_tmp->tmp_value) {
 		nemu_state.state = NEMU_STOP;
-		printf("The watchpoint %d ( %s ) has been changed from %u to %u, by hex from %#x to %#x.\n", wp_tmp->NO, wp_tmp->expr, wp_tmp->tmp_value, tmp_value, wp_tmp->tmp_value, tmp_value);
+		Log("%#.8x: The watchpoint %d ( %s ) has been changed from %u to %u, by hex from %#x to %#x.\n", cpu.pc, wp_tmp->NO, wp_tmp->expr, wp_tmp->tmp_value, tmp_value, wp_tmp->tmp_value, tmp_value);
 		wp_tmp->tmp_value = tmp_value;
-		return;
+		// return;
 	  }
 	}
 	free(wp_success);

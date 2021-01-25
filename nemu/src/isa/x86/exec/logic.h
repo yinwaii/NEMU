@@ -10,12 +10,18 @@ static inline def_EHelper(test) {
 }
 
 static inline def_EHelper(and) {
+  // Log("Before and: %#.8x", vaddr_read(0x19df02, 4));
   rtl_and(s, s0, ddest, dsrc1);
+  // Log("%#.8x", cpu.ebp);
+  // Log("dest: %#.8x", s->isa.moff);
+  // Log("%#.8x & %#.8x = %#.8x", *ddest, *dsrc1, *s0);
   rtl_set_CF(s, rz);
   rtl_update_ZFSF(s, s0, id_dest->width);
   rtl_set_OF(s, rz);
   // rtl_mv(s, ddest, s0);
+  // Log("After() and: %#.8x", vaddr_read(0x19df02, 4));
   operand_write(s, id_dest, s0);
+  // Log("After and: %#.8x", vaddr_read(0x19df02, 4));
   // TODO();
   print_asm_template2(and);
 }

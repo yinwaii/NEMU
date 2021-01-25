@@ -4,37 +4,46 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 size_t strlen(const char *s) {
-  int length_cnt = 0;
+  assert(s != NULL);
+  // if (s == NULL)
+  //   return 0;
+  size_t length_cnt = 0;
   for (; s[length_cnt] != '\0'; length_cnt++)
     ;
   return length_cnt;
 }
 
 char *strcpy(char* dst,const char* src) {
-  memcpy(dst, src, strlen(src) + 1);
+  assert(dst != NULL && src != NULL);
+  int i = 0;
+  for (; src[i] != '\0'; i++)
+    dst[i] = src[i];
+  dst[i] = '\0';
   return dst;
 }
 
 char* strncpy(char* dst, const char* src, size_t n) {
-  int length = strlen(src) + 1;
-  if (length >= n)
-    memcpy(dst, src, n);
-  else
-  {
-    memcpy(dst, src, length);
-    for (int i = length; i < n; i++)
-      *(dst + i) = '\0';
-  }
+  assert(dst != NULL && src != NULL);
+  int i = 0;
+  for (; src[i] != '\0' && i < n; i++)
+    dst[i] = src[i];
+  for (; i < n; i++)
+    dst[i] = '\0';
   return dst;
 }
 
 char* strcat(char* dst, const char* src) {
-  strcpy(dst + strlen(dst), src);
+  int i = 0;
+  size_t len = strlen(dst);
+  for (; src[i] != '\0'; i++)
+    dst[len + i] = src[i];
+  dst[len + i] = '\0';
   return dst;
 }
 
 int strcmp(const char* s1, const char* s2) {
-  for (int i = 0;;i++)
+  assert(s1 != NULL && s2 != NULL);
+  for (int i = 0;; i++)
   {
     if (*(s1 + i) == '\0' && *(s2 + i)=='\0')
       return 0;
@@ -59,24 +68,28 @@ int strncmp(const char* s1, const char* s2, size_t n) {
 }
 
 void* memset(void* v,int c,size_t n) {
+  assert(v != NULL && n > 0);
   for (int i = 0; i < n; i++)
   {
     char *p_v = (char *)v + i;
-    *p_v = (unsigned char)c;
+    *p_v = c;
   }
   return v;
 }
 
 void* memmove(void* dst,const void* src,size_t n) {
-  char *p_tmp;
-  p_tmp = malloc(n);
+  assert(dst != NULL && src != NULL && n > 0);
+  char p_tmp[100];
+  // char *p_tmp;
+  // p_tmp = malloc(n);
   memcpy(p_tmp, src, n);
   memcpy(dst, p_tmp, n);
-  free(p_tmp);
+  // free(p_tmp);
   return dst;
 }
 
 void* memcpy(void* out, const void* in, size_t n) {
+  assert(out != NULL && in != NULL && n > 0);
   for (int i = 0; i < n; i++)
   {
     char *p_out = (char *)out + i;
@@ -87,6 +100,7 @@ void* memcpy(void* out, const void* in, size_t n) {
 }
 
 int memcmp(const void* s1, const void* s2, size_t n) {
+  assert(s1 != NULL && s2 != NULL && n > 0);
   for (int i = 0; i < n; i++)
   {
     char *p_s1 = (char *)s1 + i;

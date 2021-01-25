@@ -34,6 +34,8 @@ static inline def_EHelper(sub) {
 static inline def_EHelper(cmp) {
   rtl_sext(s, dsrc1, dsrc1, id_src1->width);
   rtl_sub(s, s0, ddest, dsrc1);
+  // Log("dest: %#.8x", s->isa.moff);
+  // Log("%#.8x - %#.8x = %#.8x", *ddest, *dsrc1, *s0);
   rtl_is_sub_carry(s, s1, s0, ddest);
   rtl_set_CF(s, s1);
   rtl_update_ZFSF(s, s0, id_dest->width);
@@ -82,6 +84,7 @@ static inline def_EHelper(neg) {
     rtl_set_OF(s, &one);
   else
     rtl_set_OF(s, rz);
+  operand_write(s, id_dest, s0);
   // TODO();
   print_asm_template1(neg);
 }
@@ -106,13 +109,17 @@ static inline def_EHelper(adc) {
 
 static inline def_EHelper(sbb) {
   rtl_get_CF(s, s0);
+  // Log("get CF: %d", *s0);
   rtl_add(s, s0, dsrc1, s0);
+  // Log("%#.8x + %#.8x = %#.8x", *dsrc1, *s0, *s0);
   rtl_sub(s, s1, ddest, s0);
+  // Log("%#.8x - %#.8x = %#.8x", *ddest, *s0, *s1);
   rtl_update_ZFSF(s, s1, id_dest->width);
   rtl_is_sub_overflow(s, s2, s1, ddest, dsrc1, id_dest->width);
   rtl_set_OF(s, s2);
   rtl_is_add_carry(s, s2, s0, dsrc1);
-  rtl_is_sub_carry(s, s0, ddest, s0);
+  rtl_is_sub_carry(s, s0, s1, ddest);
+  // Log("addC: %d subC: %d", *s2, *s0);
   rtl_or(s, s0, s0, s2);
   rtl_set_CF(s, s0);
   operand_write(s, id_dest, s1);

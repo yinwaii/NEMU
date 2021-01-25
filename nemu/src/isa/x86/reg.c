@@ -43,14 +43,38 @@ void reg_test() {
 }
 
 void isa_reg_display() {
-  int reg_num = (sizeof(regsl)) / (sizeof(regsl[0])) + 1;
+  const int reg_num = (sizeof(regsl)) / (sizeof(regsl[0])) + 5;
   printf("The status of registers:\n");
   for (int i = 0; i < reg_num; i++)
   {
-	if (i == reg_num - 1)
-	  printf("%-15s%-#30x%u\n","pc", cpu.pc, cpu.pc);
-	else
-	  printf("%-15s%-#30x%u\n", regsl[i], reg_l(i), reg_l(i));
+    switch (i)
+    {
+      case reg_num - 1:
+        printf("%-15s%-#30x%u\n", "pc", cpu.pc, cpu.pc);
+        break;
+      case reg_num - 2:
+        printf("%-15s%-#30x%u\n", "OF", cpu.eflags.OF, cpu.eflags.OF);
+        break;
+      case reg_num - 3:
+        printf("%-15s%-#30x%u\n", "ZF", cpu.eflags.ZF, cpu.eflags.ZF);
+        break;
+      case reg_num - 4:
+        printf("%-15s%-#30x%u\n", "SF", cpu.eflags.SF, cpu.eflags.SF);
+        break;
+      case reg_num - 5:
+        printf("%-15s%-#30x%u\n", "CF", cpu.eflags.CF, cpu.eflags.CF);
+        break;
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+        printf("%-15s%-#30x%u\n", regsl[i], reg_l(i), reg_l(i));
+        break;
+      }
   }
 }
 

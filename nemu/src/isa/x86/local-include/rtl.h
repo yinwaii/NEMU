@@ -55,6 +55,7 @@ static inline def_rtl(is_sub_carry, rtlreg_t* dest,
     const rtlreg_t* res, const rtlreg_t* src1) {
   // dest <- is_carry(src1 - src2)
   rtl_setrelop(s, RELOP_LTU, dest, src1, res);
+  // Log("%#.8x %#.8x %#.8x", *dest, *src1, *res);
   // TODO();
 }
 

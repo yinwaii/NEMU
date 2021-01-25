@@ -6,13 +6,23 @@
 #define check_register(reg)                                       \
   if (ref_r->reg != cpu.reg)                                      \
   {                                                               \
-    Log("Different "str(reg)": QEMU: %#.8x NEMU: %#.8x", ref_r->reg, cpu.reg); \
+    Log("Different "str(reg)": QEMU: %#.8x NEMU: %#.8x, pc: %#.8x", ref_r->reg, cpu.reg, cpu.pc);  \
     return false;                                                 \
   }                                                               \
   else
+#define inno_register(reg)                                                      \
+  if (ref_r->reg != cpu.reg)                                                     \
+  {                                                                              \
+    Log("Different " str(reg) ": QEMU: %#.8x NEMU: %#.8x, pc: %#.8x", ref_r->reg, cpu.reg, cpu.pc); \
+  }                                                                              
 
 bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
-  // Log("QEMU: %#.8x NEMU: %#.8x", ref_r->eax, cpu.eax);
+  // Log("QEMU: %#.8x NEMU: %#.8x, when pc is %#.8x", ref_r->ebp, cpu.ebp, cpu.pc);
+  // Log("QEMU: %#.8x NEMU: %#.8x, when pc is %#.8x", ref_r->eax, cpu.eax, cpu.pc);
+  inno_register(eflags.CF)
+  inno_register(eflags.ZF)
+  inno_register(eflags.SF)
+  inno_register(eflags.OF)
   check_register(eax)
   check_register(ecx)
   check_register(edx)
@@ -21,10 +31,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   check_register(ebp)
   check_register(esi)
   check_register(edi)
-  // check_register(eflags.CF)
-  // check_register(eflags.ZF)
-  // check_register(eflags.SF)
-  // check_register(eflags.OF)
+  check_register(pc)
     return true;
 }
 
