@@ -91,3 +91,22 @@ static inline def_EHelper(lea) {
   operand_write(s, id_dest, ddest);
   print_asm_template2(lea);
 }
+
+static inline def_EHelper(movs)
+{
+  rtl_lm(s, s0, &cpu.esi, 0, id_src1->width);
+  rtl_sm(s, &cpu.edi, 0, s0, id_dest->width);
+  reg_l(R_ESI) += id_src1->width;
+  reg_l(R_EDI) += id_dest->width;
+  switch (id_dest->width) {
+    case 1:
+      print_asm("movsb");
+      break;
+    case 2:
+      print_asm("movsw");
+      break;
+    case 3:
+      print_asm("movsd");
+      break;
+    }
+}

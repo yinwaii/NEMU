@@ -78,9 +78,11 @@ static int cmd_p(char *args) {
 	  char file[3][30] = {"build/", "build/o", "build/n"};
 	  printf("Please input the file name (whose length should <= 10) of test data:\n");
 	  char base[11];
-	  scanf("%s", base);
-	  unsigned answer;
-	  char e[66666];
+    int num = 0;
+    num = scanf("%s", base);
+    assert(num >= 0);
+    unsigned answer;
+    char e[66666];
 	  FILE *fp = fopen(strcat(file[0], base), "r");
 	  FILE *flog = fopen(strcat(file[1], base), "w");
 	  FILE *fnp = fopen(strcat(file[2], base), "w");

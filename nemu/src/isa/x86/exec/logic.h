@@ -86,6 +86,77 @@ static inline def_EHelper(shr) {
   print_asm_template2(shr);
 }
 
+static inline def_EHelper(rol) {
+  rtl_mv(s, s0, ddest);
+  for (int i = 0; i < *dsrc1; i++) {
+    rtl_msb(s, s1, s0, id_dest->width);
+    *s0 <<= 1;
+    *s0 |= *s1;
+    rtl_set_CF(s, s1);
+  }
+  operand_write(s, id_dest, s0);
+  if (*dsrc1 == 1) {
+    rtl_msb(s, s0, s0, id_dest->width);
+    *s0 ^= *s1;
+    rtl_set_OF(s, s0);
+  }
+  print_asm_template2(rol);
+}
+
+static inline def_EHelper(ror) {
+  rtl_mv(s, s0, ddest);
+  for (int i = 0; i < *dsrc1; i++) {
+    *s1 = *s0 & 0x1;
+    *s0 >>= 1;
+    rtl_msbset(s, s0, s1, id_dest->width);
+    rtl_set_CF(s, s1);
+  }
+  operand_write(s, id_dest, s0);
+  if (*dsrc1 == 1) {
+    *s1 = (*s0 >> (8 * id_dest->width - 2)) & 0x1;
+    rtl_msb(s, s0, s0, id_dest->width);
+    *s0 ^= *s1;
+    rtl_set_OF(s, s0);
+  }
+  print_asm_template2(ror);
+}
+
+static inline def_EHelper(rcl) {
+  rtl_mv(s, s0, ddest);
+  for (int i = 0; i < *dsrc1; i++) {
+    rtl_msb(s, s1, s0, id_dest->width);
+    *s0 <<= 1;
+    rtl_get_CF(s, s2);
+    *s0 |= *s2;
+    rtl_set_CF(s, s1);
+  }
+  operand_write(s, id_dest, s0);
+  if (*dsrc1 == 1) {
+    rtl_msb(s, s0, s0, id_dest->width);
+    *s0 ^= *s1;
+    rtl_set_OF(s, s0);
+  }
+  print_asm_template2(rcl);
+}
+
+static inline def_EHelper(rcr) {
+  rtl_mv(s, s0, ddest);
+  for (int i = 0; i < *dsrc1; i++) {
+    *s1 = *s0 & 0x1;
+    *s0 >>= 1;
+    rtl_get_CF(s, s2);
+    rtl_msbset(s, s0, s2, id_dest->width);
+    rtl_set_CF(s, s1);
+  }
+  operand_write(s, id_dest, s0);
+  if (*dsrc1 == 1) {
+    *s1 = (*s0 >> (8 * id_dest->width - 2)) & 0x1;
+    rtl_msb(s, s0, s0, id_dest->width);
+    *s0 ^= *s1;
+    rtl_set_OF(s, s0);
+  }
+  print_asm_template2(rcr);
+}
 
 static inline def_EHelper(setcc) {
   // Log("%#.8x", cpu.edx);

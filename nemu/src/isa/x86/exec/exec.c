@@ -27,10 +27,10 @@ static inline def_EHelper(gp1) {
 /* 0xc0, 0xc1, 0xd0, 0xd1, 0xd2, 0xd3 */
 static inline def_EHelper(gp2) {
   switch (s->isa.ext_opcode) {
-    EMPTY (0)
-    EMPTY (1)
-    EMPTY (2)
-    EMPTY (3)
+    EXW (0, rol, -1)
+    EXW (1, ror, -1)
+    EXW (2, rcl, -1)
+    EXW (3, rcr, -1)
     EXW (4, shl, -1)
     EXW (5, shr, -1)
     EMPTY (6)
@@ -259,6 +259,8 @@ again:
     IDEX (0xa1, O2a, mov)
     IDEXW(0xa2, a2O, mov, 1)
     IDEX (0xa3, a2O, mov)
+    EXW  (0xa4, movs, 1)
+    EX   (0xa5, movs)
     IDEXW(0xa8, I2a, test, 1)
     IDEX (0xa9, I2a, test)
     IDEXW(0xb0, mov_I2r, mov, 1)
