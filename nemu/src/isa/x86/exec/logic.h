@@ -88,7 +88,9 @@ static inline def_EHelper(shr) {
 
 static inline def_EHelper(rol) {
   rtl_mv(s, s0, ddest);
-  for (int i = 0; i < *dsrc1; i++) {
+  rtl_andi(s, dsrc1, dsrc1, 0x1f);
+  for (int i = 0; i < *dsrc1; i++)
+  {
     rtl_msb(s, s1, s0, id_dest->width);
     *s0 <<= 1;
     *s0 |= *s1;
@@ -105,7 +107,9 @@ static inline def_EHelper(rol) {
 
 static inline def_EHelper(ror) {
   rtl_mv(s, s0, ddest);
-  for (int i = 0; i < *dsrc1; i++) {
+  rtl_andi(s, dsrc1, dsrc1, 0x1f);
+  for (int i = 0; i < *dsrc1; i++)
+  {
     *s1 = *s0 & 0x1;
     *s0 >>= 1;
     rtl_msbset(s, s0, s1, id_dest->width);
@@ -123,7 +127,9 @@ static inline def_EHelper(ror) {
 
 static inline def_EHelper(rcl) {
   rtl_mv(s, s0, ddest);
-  for (int i = 0; i < *dsrc1; i++) {
+  rtl_andi(s, dsrc1, dsrc1, 0x1f);
+  for (int i = 0; i < *dsrc1; i++)
+  {
     rtl_msb(s, s1, s0, id_dest->width);
     *s0 <<= 1;
     rtl_get_CF(s, s2);
@@ -141,7 +147,9 @@ static inline def_EHelper(rcl) {
 
 static inline def_EHelper(rcr) {
   rtl_mv(s, s0, ddest);
-  for (int i = 0; i < *dsrc1; i++) {
+  rtl_andi(s, dsrc1, dsrc1, 0x1f);
+  for (int i = 0; i < *dsrc1; i++)
+  {
     *s1 = *s0 & 0x1;
     *s0 >>= 1;
     rtl_get_CF(s, s2);
