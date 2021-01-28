@@ -114,6 +114,16 @@ void my_format(void *outstream, printer printer, const char *fmt, va_list va) {
         printstr(outstream, printer, &p);
         control = false;
         break;
+      case 'p':
+        printf("0x");
+        p.blank = '0';
+        p.length = 8;
+        p.base = 16;
+        p.uc = 0;
+        ui2a((unsigned)va_arg(va, void *), &p);
+        printstr(outstream, printer, &p);
+        control = false;
+        break;
       case 's':
         p.str = va_arg(va, char *);
         printstr(outstream, printer, &p);
@@ -126,8 +136,15 @@ void my_format(void *outstream, printer printer, const char *fmt, va_list va) {
         printstr(outstream, printer, &p);
         control = false;
         break;
+      case '%':
+        p.str[0] = '%';
+        p.str[1] = '\0';
+        printstr(outstream, printer, &p);
+        control = false;
+        break;
       default:
-        printf("please input %%%c in printf!\n", fmt[i]);
+        control = false;
+        printf("\33[1;31m please implement %%%c in printf! \33[0m", fmt[i]);
         break;
       }
     }

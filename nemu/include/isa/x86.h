@@ -58,6 +58,14 @@ union {
     };
     word_t val;
   } eflags;
+  uint16_t CS, SS, DS, ES, FS, GS;
+  union {
+    struct {
+      uint16_t limit : 16;
+      vaddr_t base : 32;
+    };
+    uint64_t val;
+  } IDTR, GDTR;
 } x86_CPU_state;
 
 // decode

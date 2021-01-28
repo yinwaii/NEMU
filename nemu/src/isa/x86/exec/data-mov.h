@@ -18,12 +18,68 @@ static inline def_EHelper(pop) {
 }
 
 static inline def_EHelper(pusha) {
-  TODO();
+  if (s->width == 2) {
+    rtl_li(s, s0, reg_w(R_SP));
+    rtl_li(s, s1, reg_w(R_AX));
+    rtl_push(s, s1);
+    rtl_li(s, s1, reg_w(R_CX));
+    rtl_push(s, s1);
+    rtl_li(s, s1, reg_w(R_DX));
+    rtl_push(s, s1);
+    rtl_li(s, s1, reg_w(R_BX));
+    rtl_push(s, s1);
+    rtl_push(s, s0);
+    rtl_li(s, s1, reg_w(R_BP));
+    rtl_push(s, s1);
+    rtl_li(s, s1, reg_w(R_SI));
+    rtl_push(s, s1);
+    rtl_li(s, s1, reg_w(R_DI));
+    rtl_push(s, s1);
+  }
+  else {
+    rtl_mv(s, s0, &cpu.esp);
+    rtl_push(s, &cpu.eax);
+    rtl_push(s, &cpu.ecx);
+    rtl_push(s, &cpu.edx);
+    rtl_push(s, &cpu.ebx);
+    rtl_push(s, s0);
+    rtl_push(s, &cpu.ebp);
+    rtl_push(s, &cpu.esi);
+    rtl_push(s, &cpu.edi);
+  }
+  // TODO();
   print_asm("pusha");
 }
 
 static inline def_EHelper(popa) {
-  TODO();
+  if (s->width == 2) {
+    rtl_pop(s, s0);
+    reg_l(R_DI) = *s0;
+    rtl_pop(s, s0);
+    reg_l(R_SI) = *s0;
+    rtl_pop(s, s0);
+    reg_l(R_BP) = *s0;
+    rtl_pop(s, s0);
+    rtl_pop(s, s0);
+    reg_l(R_BX) = *s0;
+    rtl_pop(s, s0);
+    reg_l(R_DX) = *s0;
+    rtl_pop(s, s0);
+    reg_l(R_CX) = *s0;
+    rtl_pop(s, s0);
+    reg_l(R_AX) = *s0;
+  }
+  else {
+    rtl_pop(s, &cpu.edi);
+    rtl_pop(s, &cpu.esi);
+    rtl_pop(s, &cpu.ebp);
+    rtl_pop(s, s0);
+    rtl_pop(s, &cpu.ebx);
+    rtl_pop(s, &cpu.edx);
+    rtl_pop(s, &cpu.ecx);
+    rtl_pop(s, &cpu.eax);
+  }
+  // TODO();
   print_asm("popa");
 }
 

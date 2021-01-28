@@ -6,9 +6,17 @@ uint32_t pio_read_b(ioaddr_t);
 void pio_write_l(ioaddr_t, uint32_t);
 void pio_write_w(ioaddr_t, uint32_t);
 void pio_write_b(ioaddr_t, uint32_t);
+void raise_intr(DecodeExecState *s, uint32_t NO, vaddr_t ret_addr);
 
 static inline def_EHelper(lidt) {
-  TODO();
+  rtl_lm(s, s0, s->isa.mbase, s->isa.moff, 2);
+  cpu.IDTR.limit = *s0;
+  rtl_lm(s, s1, s->isa.mbase, s->isa.moff + 2, 4);
+  if (id_dest->width == 2)
+    cpu.IDTR.base = *s1 & 0x00ffffff;
+  else
+    cpu.IDTR.base = *s1;
+  // TODO();
   print_asm_template1(lidt);
 }
 
@@ -27,7 +35,22 @@ static inline def_EHelper(mov_cr2r) {
 }
 
 static inline def_EHelper(int) {
-  TODO();
+  switch (s->opcode)
+  {
+  case 0xcc:
+    raise_intr(s, (uint32_t)0x3, s->seq_pc);
+    break;
+  case 0xcd:
+    raise_intr(s, *ddest, s->seq_pc);
+    break;
+  case 0xce:
+    raise_intr(s, (uint32_t)0x4, s->seq_pc);
+    break;
+  default:
+    printf("\33[1;31m call int with %#.2x! \33[0m", s->opcode);
+    break;
+  }
+  // TODO();
   print_asm("int %s", id_dest->str);
 
 #ifndef __DIFF_REF_NEMU__
