@@ -61,12 +61,20 @@ int _open(const char *path, int flags, mode_t mode) {
 }
 
 int _write(int fd, void *buf, size_t count) {
-  _syscall_(SYS_write, fd, buf, count);
-  return 0;
+  return _syscall_(SYS_write, fd, buf, count);
 }
 
+extern char end;
 void *_sbrk(intptr_t increment) {
-  return (void *)-1;
+  static intptr_t program_break = &end;
+  intptr_t new_addr = program_break + increment;
+  if (_syscall_(SYS_brk, new_addr, 0, 0) == 0) {
+    void *previous_break = (void *)program_break;
+    program_break = new_addr;
+    return previous_break;
+  }
+  else
+    return (void *)-1;
 }
 
 int _read(int fd, void *buf, size_t count) {

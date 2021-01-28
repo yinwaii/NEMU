@@ -17,6 +17,7 @@ void do_syscall(Context *c)
     make_sys_function(exit)
     make_sys_function(yield)
     make_sys_function(write)
+    make_sys_function(brk)
     default:
       panic("Unhandled syscall ID = %d", a[0]);
   }
@@ -51,4 +52,8 @@ void sys_write(Context *c) {
       panic("Unhandled write request: %d", fd);
       break;
   }
+}
+
+void sys_brk(Context *c) {
+  c->GPRx = 0;
 }
