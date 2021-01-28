@@ -18,8 +18,17 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->irq) {
-      default: ev.event = EVENT_ERROR; break;
+      case 0x81:
+        ev.event = EVENT_YIELD;
+        break;
+      default:
+        ev.event = EVENT_ERROR;
+        break;
     }
+    // printf("%p\n", c->this_esp);
+    // printf("%p, %p, %p, %p, %p, %p, %p, %p\n", c->edi, c->esi, c->ebp, c->esp, c->ebx, c->edx, c->ecx, c->eax);
+    // printf("%p\n", c->irq);
+    // printf("%p, %p, %p\n", c->eip, c->cs, c->eflags);
 
     c = user_handler(ev, c);
     assert(c != NULL);

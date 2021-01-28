@@ -290,6 +290,7 @@ again:
     EX   (0xcc, int)
     IDEXW(0xcd, I, int, 1)
     EX   (0xce, int)
+    EX   (0xcf, iret)
     IDEXW(0xd0, gp2_1_E, gp2, 1)
     IDEX (0xd1, gp2_1_E, gp2)
     IDEXW(0xd2, gp2_cl2E, gp2, 1)
