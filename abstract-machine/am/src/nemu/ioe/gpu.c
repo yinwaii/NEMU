@@ -13,7 +13,7 @@ void __am_gpu_init() {
   H = config & 0xffff;
   fb = (uint32_t *)(uintptr_t)FB_ADDR;
   for (i = 0; i < W * H; i++)
-    fb[i] = i;
+    fb[i] = 0x0;
   outl(SYNC_ADDR, 1);
 }
 
