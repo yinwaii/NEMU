@@ -42,7 +42,10 @@ char* strcat(char* dst, const char* src) {
 }
 
 int strcmp(const char* s1, const char* s2) {
-  assert(s1 != NULL && s2 != NULL);
+  if (s1 == NULL)
+    return -1;
+  if (s2 == NULL)
+    return 1;
   for (int i = 0;; i++)
   {
     if (*(s1 + i) == '\0' && *(s2 + i)=='\0')
@@ -55,6 +58,10 @@ int strcmp(const char* s1, const char* s2) {
 }
 
 int strncmp(const char* s1, const char* s2, size_t n) {
+  if (s1 == NULL)
+    return -1;
+  if (s2 == NULL)
+    return 1;
   for (int i = 0; i < n; i++)
   {
     if (*(s1 + i) == '\0' && *(s2 + i) == '\0')

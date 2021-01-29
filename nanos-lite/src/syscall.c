@@ -1,12 +1,38 @@
 #include <common.h>
 #include <fs.h>
 #include "syscall.h"
+#include <syscal.h>
+#include <sys/time.h>
+#if defined(__ISA_NATIVE__)
+#include <time.h>
+#endif
 
 #define concat(a, b)       a ## b
 #define make_sys_function(name) \
   case concat(SYS_, name):                \
     concat(sys_, name)(c);                \
     break;
+
+void do_syscall(Context *c)
+{
+  uintptr_t a[4];
+  a[0] = c->GPR1;
+  // Log("Get syscall ID = %d", a[0]);
+
+  switch (a[0]) {
+    make_sys_function(exit)
+    make_sys_function(yield)
+    make_sys_function(write)
+    make_sys_function(brk)
+    make_sys_function(open)
+    make_sys_function(close)
+    make_sys_function(lseek)
+    make_sys_function(read)
+    make_sys_function(gettimeofday)
+    default:
+      panic("Unhandled syscall ID = %d", a[0]);
+  }
+}
 
 void sys_yield(Context *c)
 {
@@ -47,26 +73,8 @@ void sys_lseek(Context *c)
 
 void sys_write(Context *c)
 {
-  int fd = c->GPR2;
-  char *buf = (char *)c->GPR3;
-  size_t len = (size_t)c->GPR4;
-  int res = len;
-  switch (fd)
-  {
-  case 1:
-  case 2:
-    // Log("Get write request!");
-    for (int i = 0; i < len; i++)
-    {
-      putch(buf[i]);
-    }
-    c->GPRx = len;
-    break;
-  default:
-    res = fs_write(fd, buf, len);
-    c->GPRx = res;
-    break;
-  }
+  int res = fs_write((int)(c->GPR2), (char *)(c->GPR3), (size_t)(c->GPR4));
+  c->GPRx = res;
 }
 
 void sys_brk(Context *c)
@@ -74,22 +82,28 @@ void sys_brk(Context *c)
   c->GPRx = 0;
 }
 
-void do_syscall(Context *c)
+void sys_gettimeofday(Context *c)
 {
-  uintptr_t a[4];
-  a[0] = c->GPR1;
-  // Log("Get syscall ID = %d", a[0]);
-
-  switch (a[0]) {
-    make_sys_function(exit)
-    make_sys_function(yield)
-    make_sys_function(write)
-    make_sys_function(brk)
-    make_sys_function(open)
-    make_sys_function(close)
-    make_sys_function(lseek)
-    make_sys_function(read)
-    default:
-      panic("Unhandled syscall ID = %d", a[0]);
+  struct timeval *tv = (struct timeval *)(c->GPR2);
+  struct timezone *tz = (struct timezone *)(c->GPR3);
+  if (tv == NULL)
+  {
+    c->GPRx = -1;
+    return;
   }
+  #if defined(__ISA_X86__)
+  uint32_t data;
+  asm volatile("inl %1, %0" : "=a"(data) : "d"((uint16_t)(0x48 + 0x4)));
+  tv->tv_sec = (time_t)data;
+  asm volatile("inl %1, %0" : "=a"(data) : "d"((uint16_t)(0x48)));
+  tv->tv_usec = (suseconds_t)data;
+  #elif defined(__ISA_MIPS32__) || defined(__ISA_RISCV32__)
+  tv->tv_sec = (time_t)(*(volatile uint32_t *)(0xa1000048 + 0x4));
+  tv->tv_usec = (suseconds_t)(*(volatile uint32_t *)0xa1000048);
+  #elif defined(__ISA_NATIVE__)
+  return gettimeofday(tv, tz);
+  #endif
+  tz->tz_minuteswest = -8;
+  tz->tz_dsttime = 0;
+  c->GPRx = 0;
 }

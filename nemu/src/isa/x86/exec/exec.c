@@ -265,6 +265,8 @@ again:
     EX   (0xa5, movs)
     IDEXW(0xa8, I2a, test, 1)
     IDEX (0xa9, I2a, test)
+    EXW  (0xaa, stos, 1)
+    EX   (0xab, stos)
     IDEXW(0xb0, mov_I2r, mov, 1)
     IDEXW(0xb1, mov_I2r, mov, 1)
     IDEXW(0xb2, mov_I2r, mov, 1)

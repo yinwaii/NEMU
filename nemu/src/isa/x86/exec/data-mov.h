@@ -166,3 +166,46 @@ static inline def_EHelper(movs)
       break;
     }
 }
+
+static inline def_EHelper(stos)
+{
+  switch (s->width)
+  {
+    case 1:
+      rtl_li(s, s0, reg_b(R_AL));
+      rtl_sm(s, &cpu.edi, 0, s0, 1);
+      if (cpu.eflags.DF == 0)
+        rtl_addi(s, &cpu.edi, &cpu.edi, 1);
+      else
+        rtl_subi(s, &cpu.edi, &cpu.edi, 1);
+      break;
+    case 2:
+      rtl_li(s, s0, reg_w(R_AX));
+      rtl_sm(s, &cpu.edi, 0, s0, 2);
+      if (cpu.eflags.DF == 0)
+        rtl_addi(s, &cpu.edi, &cpu.edi, 2);
+      else
+        rtl_subi(s, &cpu.edi, &cpu.edi, 2);
+      break;
+    case 4:
+      rtl_li(s, s0, reg_l(R_EAX));
+      rtl_sm(s, &cpu.edi, 0, s0, 4);
+      if (cpu.eflags.DF == 0)
+        rtl_addi(s, &cpu.edi, &cpu.edi, 4);
+      else
+        rtl_subi(s, &cpu.edi, &cpu.edi, 4);
+      break;
+  }
+  switch (id_dest->width)
+  {
+  case 1:
+    print_asm("stosb");
+    break;
+  case 2:
+    print_asm("stosw");
+    break;
+  case 3:
+    print_asm("stosd");
+    break;
+  }
+}

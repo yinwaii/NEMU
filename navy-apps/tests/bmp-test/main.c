@@ -5,6 +5,8 @@
 #include <BMP.h>
 
 int main() {
+  printf("Program Starting\n");
+  putenv("NWM_APP=1");
   NDL_Init(0);
   int w, h;
   void *bmp = BMP_Load("/share/pictures/projectn.bmp", &w, &h);
