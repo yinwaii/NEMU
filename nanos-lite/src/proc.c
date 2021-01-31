@@ -22,7 +22,7 @@ void hello_fun(void *arg) {
 
 void init_proc() {
   switch_boot_pcb();
-  naive_uload(NULL, "/bin/nslider");
+  naive_uload(NULL, "/bin/nterm");
 
   Log("Initializing processes...");
 

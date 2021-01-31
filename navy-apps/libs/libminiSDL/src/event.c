@@ -17,8 +17,35 @@ int SDL_PushEvent(SDL_Event *ev) {
 }
 
 int SDL_PollEvent(SDL_Event *ev) {
-  sdl_TODO();
-  return 0;
+  // sdl_TODO();
+  char buf[20] = "", name[20] = "", ch = '\0';
+  int res = 0;
+  res = NDL_PollEvent(buf, 19);
+  if (res == 0)
+  {
+    ev->key.keysym.sym = SDLK_NONE;
+    return 0;
+  }
+  // printf("%s\n", buf);
+  sscanf(buf, "k%c %s\n", &ch, name);
+  // printf("%c %s\n", ch, name);
+  ev->key.keysym.sym = 0;
+  for (int i = 0; i < ((sizeof(keyname)) / (sizeof(keyname[0]))); i++)
+  {
+    if (strcmp(name, keyname[i]) == 0)
+    {
+      ev->key.keysym.sym = i;
+    }
+  }
+  assert(ev->key.keysym.sym != 0);
+  if (ch == 'u')
+    ev->key.type = SDL_KEYUP;
+  else if (ch == 'd')
+    ev->key.type = SDL_KEYDOWN;
+  else
+    assert(0);
+  ev->type = ev->key.type;
+  return 1;
 }
 
 int SDL_WaitEvent(SDL_Event *event) {

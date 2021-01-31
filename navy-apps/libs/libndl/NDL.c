@@ -39,14 +39,17 @@ void NDL_OpenCanvas(int *w, int *h) {
 }
 
 void NDL_DrawRect(uint32_t *pixels, int x, int y, int w, int h) {
+  uint32_t *p_pixels = pixels;
   int real_x = (screen_w - canvas_w) / 2 + x;
   int real_y = (screen_h - canvas_h) / 2 + y;
   for (int i = 0; i < h; i++)
   {
     int fb = open("/dev/fb", 0, 0);
     lseek(fb, (real_y + i) * screen_w + real_x, 0);
-    write(fb, pixels, w);
-    pixels += w;
+    // for (int j = 0; j < w; j++)
+      // printf("x: %d y: %d p: %p realp: %p\n", j, i, pixels[i * w + j], p_pixels[j]);
+    write(fb, p_pixels + y * canvas_w + x, w);
+    p_pixels += canvas_w;
   }
 }
 

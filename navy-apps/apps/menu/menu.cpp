@@ -64,7 +64,9 @@ static void prev() {
 }
 
 static void clear_display(void) {
+  // printf("logo_sf(before clear): %d\n", logo_sf->format->BitsPerPixel);
   SDL_FillRect(screen, NULL, 0xffffff);
+  // printf("logo_sf(after clear): %d\n", logo_sf->format->BitsPerPixel);
 }
 
 int main(int argc, char *argv[], char *envp[]) {
@@ -73,8 +75,10 @@ int main(int argc, char *argv[], char *envp[]) {
 
   font = new BDF_Font(font_fname);
   logo_sf = SDL_LoadBMP("/share/pictures/projectn.bmp");
+  // printf("logo_sf(main): %d\n", logo_sf->format->BitsPerPixel);
   assert(logo_sf);
   set_i_max();
+  // printf("logo_sf(before loop): %d\n", logo_sf->format->BitsPerPixel);
 
   while (1) {
     display_menu(i_max);
@@ -121,7 +125,8 @@ int main(int argc, char *argv[], char *envp[]) {
 static void draw_ch(BDF_Font *font, int x, int y, char ch, uint32_t fg, uint32_t bg) {
   SDL_Surface *s = BDF_CreateSurface(font, ch, fg, bg);
   SDL_Rect dstrect = { .x = x, .y = y };
-  SDL_BlitSurface(s, NULL, screen, &dstrect);
+  // printf("s: %d\n", s->format->BitsPerPixel);
+  SDL_BlitSurface(s, NULL, screen, &dstrect);              
   SDL_FreeSurface(s);
 }
 
@@ -141,7 +146,9 @@ static void draw_text_row(char *s, int r) {
 
 static void display_menu(int n) {
   clear_display();
+  // printf("logo_sf(enter_display_menu): %d\n", logo_sf->format->BitsPerPixel);
   SDL_Rect rect = { .x = screen->w - logo_sf->w, .y = 0 };
+  // printf("logo_sf(display_menu): %d\n", logo_sf->format->BitsPerPixel);
   SDL_BlitSurface(logo_sf, NULL, screen, &rect);
   printf("Available applications:\n");
   char buf[80];
