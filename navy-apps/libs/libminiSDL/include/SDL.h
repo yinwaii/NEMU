@@ -14,10 +14,18 @@ extern "C" {
 #include "sdl-video.h"
 #include "sdl-audio.h"
 #include "sdl-file.h"
+// #include "sdl-debug.h"
 
 #ifdef __cplusplus
 }
 #endif
+
+// #define str(s) #s
+// #define TODO() printf("The function " str(__FUNCTION__) " in file " str(__FILE__) "has not implemented!\n"); assert(0)
+// void TODO() {
+// 	printf("The function " str(__FUNCTION__) " in file " str(__FILE__) "has not implemented!\n");
+// 	assert(0);
+// }
 
 typedef bool SDL_bool;
 typedef uint8_t  Uint8;

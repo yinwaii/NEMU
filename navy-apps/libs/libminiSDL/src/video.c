@@ -1,5 +1,6 @@
 #include <NDL.h>
 #include <sdl-video.h>
+#include <sdl-debug.h>
 #include <assert.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,12 +8,22 @@
 void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_Rect *dstrect) {
   assert(dst && src);
   assert(dst->format->BitsPerPixel == src->format->BitsPerPixel);
+  sdl_TODO();
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
+  sdl_TODO();
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  if (x == 0 && y == 0 && w == 0 && h == 0)
+  {
+    NDL_OpenCanvas(&w, &h);
+    NDL_DrawRect((uint32_t *)s->pixels, 0, 0, w, h);
+  }
+  else
+    NDL_DrawRect((uint32_t *)s->pixels, x, y, w, h);
+  // TODO();
 }
 
 // APIs below are already implemented.
@@ -193,8 +204,10 @@ uint32_t SDL_MapRGBA(SDL_PixelFormat *fmt, uint8_t r, uint8_t g, uint8_t b, uint
 }
 
 int SDL_LockSurface(SDL_Surface *s) {
+  sdl_TODO();
   return 0;
 }
 
 void SDL_UnlockSurface(SDL_Surface *s) {
+  sdl_TODO();
 }
