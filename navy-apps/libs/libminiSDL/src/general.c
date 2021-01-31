@@ -17,7 +17,7 @@ char *SDL_GetError() {
 }
 
 int SDL_SetError(const char* fmt, ...) {
-  sdl_TODO();
+  // sdl_TODO();
   return -1;
 }
 

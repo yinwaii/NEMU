@@ -96,7 +96,7 @@ void* memmove(void* dst,const void* src,size_t n) {
 }
 
 void* memcpy(void* out, const void* in, size_t n) {
-  assert(out != NULL && in != NULL && n > 0);
+  // assert(out != NULL && in != NULL && n > 0);
   for (int i = 0; i < n; i++)
   {
     char *p_out = (char *)out + i;
