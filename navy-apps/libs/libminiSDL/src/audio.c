@@ -29,9 +29,9 @@ void SDL_FreeWAV(uint8_t *audio_buf) {
 }
 
 void SDL_LockAudio() {
-  sdl_TODO();
+  // sdl_TODO();
 }
 
 void SDL_UnlockAudio() {
-  sdl_TODO();
+  // sdl_TODO();
 }

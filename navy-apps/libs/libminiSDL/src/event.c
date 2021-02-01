@@ -10,6 +10,8 @@ static const char *keyname[] = {
   "NONE",
   _KEYS(keyname)
 };
+static const int length = (sizeof(keyname)) / (sizeof(const char *));
+static uint8_t keystate[83] = {0};
 
 int SDL_PushEvent(SDL_Event *ev) {
   sdl_TODO();
@@ -44,6 +46,10 @@ int SDL_PollEvent(SDL_Event *ev) {
     ev->key.type = SDL_KEYDOWN;
   else
     assert(0);
+  if (ev->key.type == SDL_KEYDOWN)
+    keystate[ev->key.keysym.sym] = 1;
+  else if (ev->key.type == SDL_KEYUP)
+    keystate[ev->key.keysym.sym] = 0;
   ev->type = ev->key.type;
   return 1;
 }
@@ -72,6 +78,10 @@ int SDL_WaitEvent(SDL_Event *event) {
     event->key.type = SDL_KEYDOWN;
   else
     assert(0);
+  if (event->key.type == SDL_KEYDOWN)
+    keystate[event->key.keysym.sym] = 1;
+  else if (event->key.type == SDL_KEYUP)
+    keystate[event->key.keysym.sym] = 0;
   event->type = event->key.type;
   return 1;
 }
@@ -82,28 +92,38 @@ int SDL_PeepEvents(SDL_Event *ev, int numevents, int action, uint32_t mask) {
 }
 
 uint8_t* SDL_GetKeyState(int *numkeys) {
-  // int length = (sizeof(keyname)) / (sizeof(keyname[0]));
-  // uint8_t *keystate = malloc(length * sizeof(uint8_t));
   // for (int i = 0; i < length; i++)
   //   keystate[i] = 0;
   // char buf[20] = "", name[20] = "", ch = '\0';
-  // int res = 0;
-  // res = NDL_PollEvent(buf, 19);
-  // if (res == 0)
-  // {
-  //   keystate[SDLK_NONE] = 1;
-  //   return keystate;
-  // }
-  // // printf("%s\n", buf);
-  // sscanf(buf, "k%c %s\n", &ch, name);
-  // // printf("%c %s\n", ch, name);
-  // for (int i = 0; i < ((sizeof(keyname)) / (sizeof(keyname[0]))); i++)
-  // {
-  //   if (strcmp(name, keyname[i]) == 0)
-  //   {
-  //     keystate[i] = 1;
-  //   }
-  // }
-  sdl_TODO();
-  // return keystate;
+  SDL_Event ev;
+  SDL_PollEvent(&ev);
+  if (ev.key.type == SDL_KEYDOWN)
+    keystate[ev.key.keysym.sym] = 1;
+  else if (ev.key.type == SDL_KEYUP)
+    keystate[ev.key.keysym.sym] = 0;
+  *numkeys = 0;
+  for (int i = 0; i < length; i++)
+  {
+    if (keystate[i] == 1)
+      *numkeys += 1;
+  }
+    // int res = 0;
+    // res = NDL_PollEvent(buf, 19);
+    // if (res == 0)
+    // {
+    //   keystate[SDLK_NONE] = 1;
+    //   return keystate;
+    // }
+    // printf("%s\n", buf);
+    // sscanf(buf, "k%c %s\n", &ch, name);
+    // printf("%c %s\n", ch, name);
+    // for (int i = 0; i < ((sizeof(keyname)) / (sizeof(keyname[0]))); i++)
+    // {
+    //   if (strcmp(name, keyname[i]) == 0)
+    //   {
+    //     keystate[i] = 1;
+    //   }
+    // }
+    // sdl_TODO();
+    return keystate;
 }

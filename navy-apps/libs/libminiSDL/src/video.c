@@ -28,17 +28,18 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     dstrect->y = 0;
   }
   // printf("w: %d h: %d x: %d y: %d\n", srcrect->w, srcrect->h, srcrect->x, srcrect->y);
-  uint32_t *dst_pixels = (uint32_t *)dst->pixels;
-  uint32_t *src_pixels = (uint32_t *)src->pixels;
+  // uint32_t *dst_pixels = (uint32_t *)dst->pixels;
+  // uint32_t *src_pixels = (uint32_t *)src->pixels;
   for (int i = 0; i < srcrect->w; i++)
     for (int j = 0; j < srcrect->h; j++)
     {
-      dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)];
+      memcpy(dst->pixels + (dstrect->y + j) * dst->w + (dstrect->x + i), src->pixels + (srcrect->y + j) * src->w + (srcrect->x + i), src->format->BytesPerPixel);
+      // dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)];
       // printf("x: %d y: %d src: %p dst: %p\n", i, j, src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)], dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)]);
     }
   NDL_OpenCanvas(&dst->w, &dst->h);
   // NDL_DrawRect(dst_pixels, dstrect->x, dstrect->y, srcrect->w, srcrect->h);
-  sdl_TODO();
+  // sdl_TODO();
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
@@ -57,22 +58,37 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
       p_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = color;
   NDL_OpenCanvas(&dst->w, &dst->h);
   // NDL_DrawRect(p_pixels, dstrect->x, dstrect->y, dstrect->w, dstrect->h);
-  sdl_TODO();
+  // sdl_TODO();
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
+  uint32_t *pixels;
+  if (s->format->BitsPerPixel == 8)
+  {
+    pixels = malloc(sizeof(uint32_t) * s->w * s->h);
+    for (int i = 0; i < s->w * s->h; i++)
+    {
+      uint8_t *src_pixels = (uint8_t *)(s->pixels);
+      SDL_Color *colors = s->format->palette->colors;
+      pixels[i] = colors[src_pixels[i]].val;
+    }
+  }
+  else
+    pixels = (uint32_t *)s->pixels;
   if (x == 0 && y == 0 && w == 0 && h == 0)
   {
     NDL_OpenCanvas(&w, &h);
     NDL_OpenCanvas(&s->w, &s->h);
-    NDL_DrawRect((uint32_t *)s->pixels, 0, 0, s->w, s->h);
+    NDL_DrawRect(pixels, 0, 0, s->w, s->h);
   }
   else
   {
     NDL_OpenCanvas(&s->w, &s->h);
-    NDL_DrawRect((uint32_t *)s->pixels, x, y, w, h);
+    NDL_DrawRect(pixels, x, y, w, h);
   }
-  sdl_TODO();
+  if (s->format->BitsPerPixel == 8)
+    free(pixels);
+  // sdl_TODO();
 }
 
 // APIs below are already implemented.
@@ -201,7 +217,7 @@ void SDL_SetPalette(SDL_Surface *s, int flags, SDL_Color *colors, int firstcolor
     }
     SDL_UpdateRect(s, 0, 0, 0, 0);
   }
-  sdl_TODO();
+  // sdl_TODO();
 }
 
 static void ConvertPixelsARGB_ABGR(void *dst, void *src, int len) {
