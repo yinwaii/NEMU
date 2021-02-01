@@ -37,8 +37,8 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
       // printf("x: %d y: %d src: %p dst: %p\n", i, j, src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)], dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)]);
     }
   NDL_OpenCanvas(&dst->w, &dst->h);
-  NDL_DrawRect(dst_pixels, dstrect->x, dstrect->y, srcrect->w, srcrect->h);
-  // sdl_TODO();
+  // NDL_DrawRect(dst_pixels, dstrect->x, dstrect->y, srcrect->w, srcrect->h);
+  sdl_TODO();
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
@@ -56,8 +56,8 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     for (int j = 0; j < dstrect->h; j++)
       p_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = color;
   NDL_OpenCanvas(&dst->w, &dst->h);
-  NDL_DrawRect(p_pixels, dstrect->x, dstrect->y, dstrect->w, dstrect->h);
-  // sdl_TODO();
+  // NDL_DrawRect(p_pixels, dstrect->x, dstrect->y, dstrect->w, dstrect->h);
+  sdl_TODO();
 }
 
 void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
@@ -72,7 +72,7 @@ void SDL_UpdateRect(SDL_Surface *s, int x, int y, int w, int h) {
     NDL_OpenCanvas(&s->w, &s->h);
     NDL_DrawRect((uint32_t *)s->pixels, x, y, w, h);
   }
-  // TODO();
+  sdl_TODO();
 }
 
 // APIs below are already implemented.
@@ -201,6 +201,7 @@ void SDL_SetPalette(SDL_Surface *s, int flags, SDL_Color *colors, int firstcolor
     }
     SDL_UpdateRect(s, 0, 0, 0, 0);
   }
+  sdl_TODO();
 }
 
 static void ConvertPixelsARGB_ABGR(void *dst, void *src, int len) {

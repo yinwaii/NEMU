@@ -12,7 +12,7 @@ void SDL_CloseAudio() {
 }
 
 void SDL_PauseAudio(int pause_on) {
-  sdl_TODO();
+  // sdl_TODO();
 }
 
 void SDL_MixAudio(uint8_t *dst, uint8_t *src, uint32_t len, int volume) {
