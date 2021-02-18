@@ -3,6 +3,7 @@
 #include "watchpoint.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <memory/paddr.h>
@@ -170,6 +171,30 @@ static int cmd_attach(char *args)
   return 0;
 }
 #endif
+
+static int cmd_save(char *args)
+{
+  FILE *f = fopen(args, "w");
+  assert(f);
+
+  fwrite(&cpu, sizeof(cpu), 1, f);
+  fwrite(guest_to_host(PMEM_BASE), 1, PMEM_SIZE, f);
+  fclose(f);
+  return 0;
+}
+
+static int cmd_load(char *args)
+{
+  FILE *f = fopen(args, "r");
+  assert(f);
+  int res = 0;
+  res += fread(&cpu, sizeof(cpu), 1, f);
+  res += fread(guest_to_host(PMEM_BASE), 1, PMEM_SIZE, f);
+  if (res > 0)
+    return 0;
+  else
+    return 1;
+}
 static struct {
   char *name;
   char *description;
@@ -183,11 +208,13 @@ static struct {
   { "p", "Print the value of a expression", cmd_p },
   { "x", "Get the value of a expression, use the result as the starting memory address, and output N consecutive 4 bytes in hexadecimical form", cmd_x },
   { "w", "Set the watchpoint, when the values of watchpoints are changed, the system will pause", cmd_w },
-  { "d", "Delete the watchpoint whose id is N", cmd_d }
+  { "d", "Delete the watchpoint whose id is N", cmd_d }, 
   #ifdef DIFF_TEST
-  ,{ "detach", "Close the DiffTest mode", cmd_detach },
-  { "attach", "Open the Difftest mode", cmd_attach }
+  { "detach", "Close the DiffTest mode", cmd_detach },
+  { "attach", "Open the Difftest mode", cmd_attach }, 
   #endif
+  { "save", "Save the current state to a file", cmd_save },
+  { "load", "Load some state from a file", cmd_load }
   /* TODO: Add more commands */
 
 };

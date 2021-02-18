@@ -132,34 +132,9 @@ void difftest_attach()
   #endif
   if (is_on_difftest)
     return;
-  ref_difftest_memcpy_from_dut(0, guest_to_host(0), 0x7c00);
-  ref_difftest_memcpy_from_dut(0x100000 + PMEM_BASE, guest_to_host(0x100000), PMEM_SIZE - 0x100000);
+  ref_difftest_memcpy_from_dut(PMEM_BASE, guest_to_host(IMAGE_START), PMEM_SIZE);
   is_on_difftest = true;
   is_skip_ref = false;
   skip_dut_nr_instr = 0;
-  char op_lidt[] = {0x0f, 0x01, 0x18, 0x9d};
-  uint16_t limit = cpu.IDTR.limit;
-  uint32_t base = cpu.IDTR.base;
-  ref_difftest_memcpy_from_dut(0x7e00, &limit, 2);
-  ref_difftest_memcpy_from_dut(0x7e02, &base, 4);
-  ref_difftest_memcpy_from_dut(0x7e40, op_lidt, sizeof(op_lidt));
-  ref_difftest_memcpy_from_dut(0x8000, &cpu.eflags.val, 4);
-  uint32_t tmp_pc = cpu.pc;
-  uint32_t tmp_eax = cpu.eax;
-  uint32_t tmp_esp = cpu.esp;
-  cpu.pc = 0x7e40;
-  cpu.eax = 0x7e00;
-  cpu.esp = 0x8000;
-  ref_difftest_setregs(&cpu);
-  ref_difftest_exec(1);
-  ref_difftest_getregs(&cpu);
-  Log("%#.8x", cpu.pc);
-  ref_difftest_exec(1);
-  ref_difftest_getregs(&cpu);
-  Log("%#.8x", cpu.pc);
-  cpu.pc = tmp_pc;
-  cpu.eax = tmp_eax;
-  cpu.esp = tmp_esp;
-  ref_difftest_setregs(&cpu);
-  // isa_difftest_attach();
+  isa_difftest_attach();
 }
