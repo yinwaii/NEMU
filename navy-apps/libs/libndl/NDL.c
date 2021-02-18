@@ -76,5 +76,6 @@ int NDL_Init(uint32_t flags) {
 }
 
 void NDL_Quit() {
+  // printf("going to quit\n");
   exit(0);
 }

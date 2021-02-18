@@ -14,5 +14,6 @@ make_sys_declare(close)
 make_sys_declare(lseek)
 make_sys_declare(read)
 make_sys_declare(gettimeofday)
+make_sys_declare(execve)
 
 #endif

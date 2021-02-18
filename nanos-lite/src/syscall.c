@@ -3,6 +3,7 @@
 #include "syscall.h"
 #include <syscal.h>
 #include <sys/time.h>
+#include <loader.h>
 #if defined(__ISA_NATIVE__)
 #include <time.h>
 #endif
@@ -29,6 +30,7 @@ void do_syscall(Context *c)
     make_sys_function(lseek)
     make_sys_function(read)
     make_sys_function(gettimeofday)
+    make_sys_function(execve)
     default:
       panic("Unhandled syscall ID = %d", a[0]);
   }
@@ -43,7 +45,8 @@ void sys_yield(Context *c)
 void sys_exit(Context *c)
 {
   Log("Exit Code: %d", c->GPR2);
-  halt(c->GPR1);
+  // halt(c->GPR1);
+  naive_uload(NULL, "/bin/menu");
   c->GPRx = 0;
 }
 
@@ -106,4 +109,14 @@ void sys_gettimeofday(Context *c)
   tz->tz_minuteswest = -8;
   tz->tz_dsttime = 0;
   c->GPRx = 0;
+}
+
+void sys_execve(Context *c)
+{
+  char *fname = (char *)(c->GPR2);
+  // char *argv = (char *)(c->GPR3);
+  // char *envp = (char *)(c->GPR4);
+  Log("%s", fname);
+  // halt(0);
+  naive_uload(NULL, fname);
 }
