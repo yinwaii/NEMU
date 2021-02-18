@@ -28,22 +28,26 @@ void SDL_BlitSurface(SDL_Surface *src, SDL_Rect *srcrect, SDL_Surface *dst, SDL_
     dstrect->y = 0;
   }
   // printf("w: %d h: %d x: %d y: %d\n", srcrect->w, srcrect->h, srcrect->x, srcrect->y);
-  // uint32_t *dst_pixels = (uint32_t *)dst->pixels;
-  // uint32_t *src_pixels = (uint32_t *)src->pixels;
+  uint32_t *dst_pixels = (uint32_t *)dst->pixels;
+  uint32_t *src_pixels = (uint32_t *)src->pixels;
   for (int i = 0; i < srcrect->w; i++)
     for (int j = 0; j < srcrect->h; j++)
     {
-      memcpy(dst->pixels + (dstrect->y + j) * dst->w + (dstrect->x + i), src->pixels + (srcrect->y + j) * src->w + (srcrect->x + i), src->format->BytesPerPixel);
-      // dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)];
+      if (src->format->BitsPerPixel == 8)
+        memcpy(dst->pixels + (dstrect->y + j) * dst->w + (dstrect->x + i), src->pixels + (srcrect->y + j) * src->w + (srcrect->x + i), src->format->BytesPerPixel);
+      else
+        dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)];
+      // printf("%d %d", src->format->BytesPerPixel, src->format->BitsPerPixel);
       // printf("x: %d y: %d src: %p dst: %p\n", i, j, src_pixels[(srcrect->y + j) * src->w + (srcrect->x + i)], dst_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)]);
     }
   NDL_OpenCanvas(&dst->w, &dst->h);
-  // NDL_DrawRect(dst_pixels, dstrect->x, dstrect->y, srcrect->w, srcrect->h);
+  // SDL_UpdateRect(dst, dstrect->x, dstrect->y, srcrect->w, srcrect->h);
   // sdl_TODO();
 }
 
 void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
   uint32_t *p_pixels = (uint32_t *)dst->pixels;
+  printf("%d\n", dst->format->BytesPerPixel);
   SDL_Rect tmp;
   if (dstrect == NULL)
   {
@@ -54,10 +58,17 @@ void SDL_FillRect(SDL_Surface *dst, SDL_Rect *dstrect, uint32_t color) {
     dstrect->y = 0;
   }
   for (int i = 0; i < dstrect->w; i++)
+  {
     for (int j = 0; j < dstrect->h; j++)
-      p_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = color;
+    {
+      if (dst->format->BitsPerPixel == 8)
+        dst->pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = color;
+      else
+        p_pixels[(dstrect->y + j) * dst->w + (dstrect->x + i)] = color;
+    }
+  }
   NDL_OpenCanvas(&dst->w, &dst->h);
-  // NDL_DrawRect(p_pixels, dstrect->x, dstrect->y, dstrect->w, dstrect->h);
+  // SDL_UpdateRect(dst, dstrect->x, dstrect->y, dstrect->w, dstrect->h);
   // sdl_TODO();
 }
 
