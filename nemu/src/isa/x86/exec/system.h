@@ -1,4 +1,5 @@
 #include <monitor/difftest.h>
+#include <memory/paddr.h>
 
 uint32_t pio_read_l(ioaddr_t);
 uint32_t pio_read_w(ioaddr_t);

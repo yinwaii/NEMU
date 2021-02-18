@@ -6,13 +6,15 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 #include <memory/paddr.h>
+#include <monitor/difftest.h>
 
 void cpu_exec(uint64_t);
 word_t expr(char *,bool *);
 int is_batch_mode();
 
 /* We use the `readline' library to provide more flexibility to read from stdin. */
-static char* rl_gets() {
+static char *rl_gets()
+{
   static char *line_read = NULL;
 
   if (line_read) {
@@ -155,6 +157,19 @@ static int cmd_d(char *args)
 
 static int cmd_help(char *args);
 
+#ifdef DIFF_TEST
+static int cmd_detach(char *args) 
+{
+  difftest_detach();
+  return 0;
+}
+
+static int cmd_attach(char *args)
+{
+  difftest_attach();
+  return 0;
+}
+#endif
 static struct {
   char *name;
   char *description;
@@ -166,10 +181,13 @@ static struct {
   { "si", "Let the program step through N instructions and then pause execution, and the default N is 1", cmd_si },
   { "info", "Print the status of registers (info r) or monitoring points (info w)", cmd_info },
   { "p", "Print the value of a expression", cmd_p },
-  { "x", "Get the value of a expression, use the result as the starting memory address, and output N consecutive 4 bytes in hexadecimical form", cmd_x},
-  { "w", "Set the watchpoint, when the values of watchpoints are changed, the system will pause", cmd_w},
-  { "d", "Delete the watchpoint whose id is N", cmd_d}
-
+  { "x", "Get the value of a expression, use the result as the starting memory address, and output N consecutive 4 bytes in hexadecimical form", cmd_x },
+  { "w", "Set the watchpoint, when the values of watchpoints are changed, the system will pause", cmd_w },
+  { "d", "Delete the watchpoint whose id is N", cmd_d }
+  #ifdef DIFF_TEST
+  ,{ "detach", "Close the DiffTest mode", cmd_detach },
+  { "attach", "Open the Difftest mode", cmd_attach }
+  #endif
   /* TODO: Add more commands */
 
 };

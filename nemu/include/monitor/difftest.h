@@ -7,10 +7,14 @@
 void difftest_skip_ref();
 void difftest_skip_dut(int nr_ref, int nr_dut);
 void difftest_step(vaddr_t this_pc, vaddr_t next_pc);
+void difftest_detach();
+void difftest_attach();
 #else
 #define difftest_skip_ref()
 #define difftest_skip_dut(nr_ref, nr_dut)
 static inline void difftest_step(vaddr_t this_pc, vaddr_t next_pc) {}
+#define difftest_detach()
+#define difftest_attach()
 #endif
 
 extern void (*ref_difftest_memcpy_from_dut)(paddr_t dest, void *src, size_t n);
