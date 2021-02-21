@@ -24,9 +24,10 @@ static void sh_prompt() {
 
 static void sh_handle_cmd(const char *cmd) {
   char name[30];
+  setenv("PATH", "/bin", 0);
   sscanf(cmd, "%s", name);
   // printf("@%s@\n", name);
-  execve(name, NULL, NULL);
+  execvp(name, NULL);
 }
 
 void builtin_sh_run() {

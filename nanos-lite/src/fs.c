@@ -2,6 +2,14 @@
 #include <ramdisk.h>
 #include <device.h>
 
+#define CONCAT3(a, b, c) a ## b ## c
+#define load_enum(name) \
+  , CONCAT(FD_, name)
+#define load_table_read(name)  \
+  [CONCAT(FD_, name)] = {TOSTRING(CONCAT(/dev/am/AM_, name)), 0, 0, CONCAT3(AM_, name, _read), invalid_write},
+#define load_table_write(name)  \
+  [CONCAT(FD_, name)] = {TOSTRING(CONCAT(/dev/am/AM_, name)), 0, 0, invalid_read, CONCAT3(AM_, name, _write)},
+
 typedef size_t (*ReadFn) (void *buf, size_t offset, size_t len);
 typedef size_t (*WriteFn) (const void *buf, size_t offset, size_t len);
 
@@ -14,7 +22,7 @@ typedef struct {
   size_t open_offset;
 } Finfo;
 
-enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_EVENTS, FD_DISPINFO, FD_FB};
+enum {FD_STDIN, FD_STDOUT, FD_STDERR, FD_EVENTS, FD_DISPINFO, FD_FB reg_map_read(load_enum) reg_map_write(load_enum)};
 
 static int file_table_size;
 
@@ -36,6 +44,8 @@ static Finfo file_table[] __attribute__((used)) = {
   [FD_EVENTS] = {"/dev/events", 0, 0, events_read, invalid_write},
   [FD_DISPINFO] = {"/proc/dispinfo", 0, 0, dispinfo_read, invalid_write},
   [FD_FB] = {"/dev/fb", 0, 0, invalid_read, fb_write},
+  reg_map_read(load_table_read)
+  reg_map_write(load_table_write)
 #include "files.h"
 };
 
