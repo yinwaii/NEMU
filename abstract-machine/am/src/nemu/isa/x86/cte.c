@@ -13,11 +13,16 @@ void __am_vecsys();
 void __am_vectrap();
 void __am_vecnull();
 
+void __amkcontext_start();
+void __am_panic_on_return() { halt(0); }
 
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->irq) {
+      case 0x32:
+        ev.event = EVENT_IRQ_TIMER;
+        break;
       case 0x80:
         ev.event = EVENT_SYSCALL;
         break;
@@ -64,7 +69,15 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
 
 Context* kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  Context *context = (Context *)kstack.end - 1;
+  memset(context, 0, sizeof(context));
+  context->cs = 0x8;
+  context->eip = (uintptr_t)__amkcontext_start;
+  context->esp = (uintptr_t)kstack.end;
+  context->irq = 0x81;
+  context->GPR1 = (uintptr_t)arg;
+  context->GPR2 = (uintptr_t)entry;
+  return context;
 }
 
 void yield() {

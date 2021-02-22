@@ -42,3 +42,12 @@ void naive_uload(PCB *pcb, const char *filename) {
   ((void(*)())entry) ();
 }
 
+void context_kload(PCB *pcb, void *entry, void *arg) {
+  Area kstack = {(void *)pcb->stack, (void *)(pcb->stack + 1)};
+  pcb->cp = kcontext(kstack, entry, arg);
+  // Context *c = pcb->cp;
+  // printf("%p, %p, %p, %p, %p, %p, %p, %p\n", c->edi, c->esi, c->ebp, c->esp, c->ebx, c->edx, c->ecx, c->eax);
+  // printf("%p\n", c->irq);
+  // printf("%p, %p, %p\n", c->eip, c->cs, c->eflags);
+  // printf("%p\n", *(c->esp + 8));
+}

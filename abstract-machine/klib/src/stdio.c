@@ -120,7 +120,11 @@ void my_format(void *outstream, printer printer, const char *fmt, va_list va) {
         p.length = 8;
         p.base = 16;
         p.uc = 0;
+        #if !defined __ISA_NATIVE__
         ui2a((unsigned)va_arg(va, void *), &p);
+        #else
+        ui2a((unsigned long)va_arg(va, void *), &p);
+        #endif
         printstr(outstream, printer, &p);
         control = false;
         break;

@@ -4,4 +4,5 @@
 #include <elf.h>
 #include <fs.h>
 void naive_uload(PCB *pcb, const char *filename);
+void context_kload(PCB *pcb, void *entry, void *arg);
 #endif
