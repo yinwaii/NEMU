@@ -16,6 +16,11 @@ typedef union {
   };
 } PCB;
 
+#define MAX_NR_PROC 4
+
+extern PCB pcb_boot;
 extern PCB *current;
+extern PCB pcb[MAX_NR_PROC];
+void switch_boot_pcb();
 
 #endif

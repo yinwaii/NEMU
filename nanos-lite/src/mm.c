@@ -3,7 +3,11 @@
 static void *pf = NULL;
 
 void* new_page(size_t nr_page) {
-  return NULL;
+  void *old = pf;
+  pf += nr_page * PGSIZE;
+  assert(pf < (void *)heap.end);
+  Log("new page allocated in %p", old);
+  return old;
 }
 
 static inline void* pg_alloc(int n) {

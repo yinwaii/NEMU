@@ -46,7 +46,9 @@ void sys_exit(Context *c)
 {
   Log("Exit Code: %d", c->GPR2);
   // halt(c->GPR1);
-  naive_uload(NULL, "/bin/menu");
+  context_uload(&pcb[0], "/bin/menu", NULL, NULL);
+  switch_boot_pcb();
+  yield();
   c->GPRx = 0;
 }
 
@@ -114,9 +116,14 @@ void sys_gettimeofday(Context *c)
 void sys_execve(Context *c)
 {
   char *fname = (char *)(c->GPR2);
-  // char *argv = (char *)(c->GPR3);
-  // char *envp = (char *)(c->GPR4);
-  Log("%s", fname);
+  char **argv = (char **)(c->GPR3);
+  char **envp = (char **)(c->GPR4);
+  // Log("%s %s", fname, argv[0]);
+  // for (int i = 0; envp[i] != NULL; i++)
+  //   Log("%d: %s", i, envp[i]);
   // halt(0);
-  naive_uload(NULL, fname);
+  // naive_uload(NULL, fname);
+  context_uload(&pcb[0], fname, argv, envp);
+  switch_boot_pcb();
+  yield();
 }

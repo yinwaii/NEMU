@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <SDL.h>
 
+char cmd_list[30][30];
+
 char handle_key(SDL_Event *ev);
 
 static void sh_printf(const char *format, ...) {
@@ -23,11 +25,32 @@ static void sh_prompt() {
 }
 
 static void sh_handle_cmd(const char *cmd) {
-  char name[30];
+  char *argv_list[30];
   setenv("PATH", "/bin", 0);
-  sscanf(cmd, "%s", name);
+  int cmd_cnt = 0;
+  while (*cmd && *cmd != '\n')
+  {
+    while(*cmd && *cmd == ' ')
+      cmd++;
+    sscanf(cmd, "%s", cmd_list[cmd_cnt]);
+    // printf("%s\n", cmd_list[cmd_cnt]);
+    argv_list[cmd_cnt] = cmd_list[cmd_cnt];
+    cmd_cnt++;
+    while(*cmd && *cmd != ' ' && *cmd != '\n')
+      cmd++;
+    // printf("@%c@\n", *cmd);
+  }
+  argv_list[cmd_cnt] = NULL;
+  // for (int i = 0; i <= cmd_cnt; i++)
+    // printf("%s ", argv_list[i]);
+  // printf("\n");
+  execvp(argv_list[0], argv_list);
+  // printf("%s %s %d\n", cmd_list[0], argv_list[0], cmd_cnt);
+  // sscanf(cmd, "%s", name);
   // printf("@%s@\n", name);
-  execvp(name, NULL);
+  // char hello_args[20][20] = {"/bin/exec-test", "666"};
+  // char *list[10] = {hello_args[0], hello_args[1]};
+  // execvp("exec-test", list);
 }
 
 void builtin_sh_run() {

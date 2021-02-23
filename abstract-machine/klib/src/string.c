@@ -6,7 +6,7 @@
 size_t strlen(const char *s) {
   assert(s != NULL);
   // if (s == NULL)
-  //   return 0;
+    // return 0;
   size_t length_cnt = 0;
   for (; s[length_cnt] != '\0'; length_cnt++)
     ;
