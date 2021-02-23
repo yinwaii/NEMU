@@ -26,7 +26,7 @@ static void sh_prompt() {
 
 static void sh_handle_cmd(const char *cmd) {
   char *argv_list[30];
-  setenv("PATH", "/bin", 0);
+  setenv("PATH", "/bin:/usr/bin", 0);
   int cmd_cnt = 0;
   while (*cmd && *cmd != '\n')
   {
@@ -44,7 +44,8 @@ static void sh_handle_cmd(const char *cmd) {
   // for (int i = 0; i <= cmd_cnt; i++)
     // printf("%s ", argv_list[i]);
   // printf("\n");
-  execvp(argv_list[0], argv_list);
+  int res = execvp(argv_list[0], argv_list);
+  printf("execvp result: %d", res);
   // printf("%s %s %d\n", cmd_list[0], argv_list[0], cmd_cnt);
   // sscanf(cmd, "%s", name);
   // printf("@%s@\n", name);

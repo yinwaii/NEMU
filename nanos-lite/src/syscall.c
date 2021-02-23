@@ -118,6 +118,12 @@ void sys_execve(Context *c)
   char *fname = (char *)(c->GPR2);
   char **argv = (char **)(c->GPR3);
   char **envp = (char **)(c->GPR4);
+  int res = fs_open(fname, 0, 0);
+  if (res < 0)
+  {
+    c->GPRx = (uintptr_t)-2;
+    return;
+  }
   // Log("%s %s", fname, argv[0]);
   // for (int i = 0; envp[i] != NULL; i++)
   //   Log("%d: %s", i, envp[i]);
@@ -126,4 +132,5 @@ void sys_execve(Context *c)
   context_uload(&pcb[0], fname, argv, envp);
   switch_boot_pcb();
   yield();
+  c->GPRx = 0;
 }
