@@ -1,5 +1,6 @@
 #include <am.h>
 #include <klib-macros.h>
+#include <klib.h>
 
 void __am_timer_init();
 void __am_gpu_init();
@@ -45,8 +46,11 @@ static void fail(void *buf) { panic("access nonexist register"); }
 bool ioe_init() {
   for (int i = 0; i < LENGTH(lut); i++)
     if (!lut[i]) lut[i] = fail;
+  // printf("Initializing the gpu ...\n");
   __am_gpu_init();
+  // printf("Initializing the timer ...\n");
   __am_timer_init();
+  // printf("Initializing the audio ...\n");
   __am_audio_init();
   return true;
 }

@@ -79,8 +79,10 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
     while (envp[num_envp] != NULL)
       num_envp++;
   }
-  uintptr_t *map_argv = malloc((num_argv + 1) * sizeof(uintptr_t));
-  uintptr_t *map_envp = malloc((num_envp + 1) * sizeof(uintptr_t));
+  // Log("uload finished!");
+  uintptr_t *map_argv = new_page(((num_argv + 1) * sizeof(uintptr_t) + PGSIZE - 1) / PGSIZE);
+  uintptr_t *map_envp = new_page(((num_envp + 1) * sizeof(uintptr_t) + PGSIZE - 1) / PGSIZE);
+  // Log("uload finished!");
   // printf("%d %d\n", num_argv, num_envp);
   for (int i = 0; i < num_argv; i++)
   {
@@ -98,6 +100,7 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
     map_envp[i] = ustack;
   }
   // printf("bbb\n");
+  // Log("uload finished!");
   map_argv[num_argv] = (uintptr_t)NULL;
   map_envp[num_envp] = (uintptr_t)NULL;
   ustack -= (num_envp + 1) * sizeof(uintptr_t);
@@ -109,7 +112,10 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   // printf("aaa\n");
 
   uintptr_t entry = loader(pcb, filename);
+  // Log("uload finished!");
   Area kstack = {(void *)pcb->stack, (void *)(pcb->stack + 1)};
   pcb->cp = ucontext(NULL, kstack, (void *)entry);
+  // 需要思考的是这里为啥会污染envp和argv。
   pcb->cp->GPRx = ustack;
+  // Log("uload finished!");
 }

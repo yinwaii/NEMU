@@ -66,6 +66,25 @@ union {
     };
     uint64_t val;
   } IDTR, GDTR;
+  union {
+    struct {
+      word_t PE : 1;
+      word_t MP : 1;
+      word_t EM : 1;
+      word_t TS : 1;
+      word_t ET : 1;
+      word_t : 26;
+      word_t PG : 1;
+    };
+    vaddr_t val;
+  } CR0;
+  union {
+    struct {
+      word_t : 12;
+      word_t PDBR : 20;
+    };
+    vaddr_t val;
+  } CR3;
 } x86_CPU_state;
 
 // decode
@@ -78,7 +97,7 @@ typedef struct {
 } x86_ISADecodeInfo;
 
 #define suffix_char(width) ((width) == 4 ? 'l' : ((width) == 1 ? 'b' : ((width) == 2 ? 'w' : '?')))
-#define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
+// #define isa_vaddr_check(vaddr, type, len) (MEM_RET_OK)
 #define x86_has_mem_exception() (false)
 
 #endif

@@ -116,4 +116,5 @@ size_t AM_AUDIO_PLAY_write(const void *buf, size_t offset, size_t len) {
 void init_device() {
   Log("Initializing devices...");
   ioe_init();
+  // Log("Initialization of devices finished.");
 }

@@ -2,6 +2,31 @@
 #include <nemu.h>
 #include <klib.h>
 
+union LinearAddress
+{
+  struct {
+    uintptr_t offset : 12;
+    uintptr_t page : 10;
+    uintptr_t dir : 10;
+  };
+  uintptr_t val;
+};
+union PageTableEntry
+{
+  struct {
+    uintptr_t present : 1;
+    uintptr_t read_write : 1;
+    uintptr_t user_supervisor : 1;
+    uintptr_t : 2;
+    uintptr_t A : 1;
+    uintptr_t dirty : 1;
+    uintptr_t : 2;
+    uintptr_t available : 3;
+    uintptr_t address : 20;
+  };
+  uintptr_t val;
+};
+
 static AddrSpace kas = {};
 static void* (*pgalloc_usr)(int) = NULL;
 static void (*pgfree_usr)(void*) = NULL;
@@ -21,6 +46,7 @@ bool vme_init(void* (*pgalloc_f)(int), void (*pgfree_f)(void*)) {
 
   int i;
   for (i = 0; i < LENGTH(segments); i ++) {
+    // printf("Mapping segment %d ...\n", i);
     void *va = segments[i].start;
     for (; va < segments[i].end; va += PGSIZE) {
       map(&kas, va, va, 0);
@@ -57,6 +83,20 @@ void __am_switch(Context *c) {
 }
 
 void map(AddrSpace *as, void *va, void *pa, int prot) {
+  union LinearAddress la;
+  la.val = (uintptr_t)va;
+  union PageTableEntry *directory = (union PageTableEntry *)(as->ptr) + la.dir;
+  if (directory->present == 0)
+  {
+    // printf("Add the pagesheet: %d in %p from page: %d\n", la.dir, directory, la.page);
+    uintptr_t addr = (uintptr_t)pgalloc_usr(PGSIZE);
+    directory->val = addr & 0xfffff000;
+    directory->present = 1;
+    // printf("%x\n", directory->val);
+  }
+  union PageTableEntry *page = (union PageTableEntry *)(directory->val & 0xfffff000) + la.page;
+  page->val = (uintptr_t)pa & 0xfffff000;
+  page->present = 1;
 }
 
 Context* ucontext(AddrSpace *as, Area kstack, void *entry) {
