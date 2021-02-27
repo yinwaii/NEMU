@@ -49,7 +49,7 @@ paddr_t isa_mmu_translate(vaddr_t vaddr, int type, int len) {
   if (page.present == 0)
     panic("pagefault at vaddr = 0x%x, directory: %x, page: %x", vaddr, directory.val, page.val);
   paddr_t paddr = (page.val & 0xfffff000) + la.offset;
-  assert(paddr == vaddr);
+  // assert(paddr == vaddr);
   return paddr;
 }
 

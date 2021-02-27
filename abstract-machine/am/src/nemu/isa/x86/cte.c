@@ -16,7 +16,11 @@ void __am_vecnull();
 void __amkcontext_start();
 void __am_panic_on_return() { halt(0); }
 
+void __am_get_cur_as(Context *c);
+void __am_switch(Context *c);
+
 Context* __am_irq_handle(Context *c) {
+  __am_get_cur_as(c);
   if (user_handler) {
     Event ev = {0};
     switch (c->irq) {
@@ -40,8 +44,8 @@ Context* __am_irq_handle(Context *c) {
 
     c = user_handler(ev, c);
     assert(c != NULL);
+    __am_switch(c);
   }
-
   return c;
 }
 
@@ -74,6 +78,7 @@ Context* kcontext(Area kstack, void (*entry)(void *), void *arg) {
   context->cs = 0x8;
   context->eip = (uintptr_t)__amkcontext_start;
   context->esp = (uintptr_t)kstack.end;
+  context->cr3 = NULL;
   context->irq = 0x81;
   context->GPR1 = (uintptr_t)arg;
   context->GPR2 = (uintptr_t)entry;

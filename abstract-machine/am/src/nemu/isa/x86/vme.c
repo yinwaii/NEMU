@@ -78,7 +78,10 @@ void __am_get_cur_as(Context *c) {
 
 void __am_switch(Context *c) {
   if (vme_enable && c->cr3 != NULL) {
+    // printf("Enter switch\n");
+    // printf("%x\n", c->cr3);
     set_cr3(c->cr3);
+    // printf("After switch\n");
   }
 }
 
@@ -97,15 +100,18 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
   union PageTableEntry *page = (union PageTableEntry *)(directory->val & 0xfffff000) + la.page;
   page->val = (uintptr_t)pa & 0xfffff000;
   page->present = 1;
+  // printf("%p mapped for %p\n", pa, va);
 }
 
 Context* ucontext(AddrSpace *as, Area kstack, void *entry) {
   Context *context = (Context *)kstack.end - 1;
   memset(context, 0, sizeof(context));
   context->cs = 0x8;
+  context->cr3 = as->ptr;
   context->eip = (uintptr_t)entry;
-  context->esp = (uintptr_t)kstack.end;
+  // context->esp = (uintptr_t)kstack.end;
   context->irq = 0x81;
-  context->GPRx = (uintptr_t)heap.end;
+  // context->GPRx = (uintptr_t)heap.end;
+  // printf("cr3: %p\n", as->ptr);
   return context;
 }

@@ -4,6 +4,7 @@
 #include <syscal.h>
 #include <sys/time.h>
 #include <loader.h>
+#include <memory.h>
 #if defined(__ISA_NATIVE__)
 #include <time.h>
 #endif
@@ -45,7 +46,7 @@ void sys_yield(Context *c)
 void sys_exit(Context *c)
 {
   Log("Exit Code: %d", c->GPR2);
-  // halt(c->GPR1);
+  halt(c->GPR1);
   context_uload(&pcb[0], "/bin/menu", NULL, NULL);
   switch_boot_pcb();
   yield();
@@ -84,7 +85,8 @@ void sys_write(Context *c)
 
 void sys_brk(Context *c)
 {
-  c->GPRx = 0;
+  int res = mm_brk((uintptr_t)(c->GPR2));
+  c->GPRx = res;
 }
 
 void sys_gettimeofday(Context *c)
@@ -129,8 +131,9 @@ void sys_execve(Context *c)
   //   Log("%d: %s", i, envp[i]);
   // halt(0);
   // naive_uload(NULL, fname);
-  context_uload(&pcb[0], fname, argv, envp);
+  context_uload(current, fname, argv, envp);
   switch_boot_pcb();
+  // Log("after execve");
   yield();
   c->GPRx = 0;
 }

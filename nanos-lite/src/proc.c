@@ -24,7 +24,7 @@ void init_proc() {
   char *list[10] = {hello_args[0], hello_args[1]};
   // printf("%s %s\n", list[0], list[1]);
   context_uload(&pcb[0], "/bin/menu", list, list);
-  // context_kload(&pcb[0], hello_fun, (void *)0x1);
+  context_kload(&pcb[1], hello_fun, (void *)0x1);
   // context_uload(&pcb[1], "/bin/pal");
   switch_boot_pcb();
   // naive_uload(NULL, "/bin/menu");
@@ -36,10 +36,11 @@ void init_proc() {
 }
 
 Context* schedule(Context *prev) {
-  // static int current_pcb = 0;
+  static int current_pcb = 0;
   current->cp = prev;
-  current = &pcb[0];
-  // current = &pcb[current_pcb];
-  // current_pcb = 1 - current_pcb;
+  // current = &pcb[0];
+  current = &pcb[current_pcb];
+  current_pcb = 1 - current_pcb;
+  // Log("After scheduling");
   return current->cp;
 }

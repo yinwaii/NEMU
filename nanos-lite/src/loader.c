@@ -1,6 +1,7 @@
 #include <proc.h>
 #include <elf.h>
 #include <fs.h>
+#include <memory.h>
 
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
@@ -23,12 +24,26 @@ static uintptr_t loader(PCB *pcb, const char *filename) {
     Elf_Phdr phdr;
     fs_lseek(fd, ehdr.e_phoff + ehdr.e_phentsize * i, 0);
     fs_read(fd, &phdr, ehdr.e_phentsize);
+    // Log("p_id: %d", i);
     // ramdisk_read(&phdr, ehdr.e_phoff + ehdr.e_phentsize * i, ehdr.e_phentsize);
     if (phdr.p_type == PT_LOAD) 
     {
-      memset((void *)phdr.p_vaddr, 0, phdr.p_memsz);
+      uintptr_t vaddr_start = (uintptr_t)phdr.p_vaddr & 0xfffff000;
+      uintptr_t vaddr_stop = ((uintptr_t)phdr.p_vaddr + phdr.p_memsz - 1) & 0xfffff000;
+      int page_num = ((vaddr_stop - vaddr_start) >> 12) + 1;
+      void *pg = new_page(page_num);
+      // Log("pg is %p, page_num is %d", pg, page_num);
+      for (int i = 0; i < page_num; i++)
+      {
+        map(&pcb->as, (void *)(vaddr_start + i * PGSIZE), pg + i * PGSIZE, 0);
+        // Log("%p mapped for %p", pg + i * PGSIZE, vaddr_start + i * PGSIZE);
+      }
+      pcb->max_brk = vaddr_stop + PGSIZE;
       fs_lseek(fd, phdr.p_offset, 0);
-      fs_read(fd, (void *)phdr.p_vaddr, phdr.p_filesz);
+      fs_read(fd, pg + (phdr.p_vaddr & 0xfff), phdr.p_filesz);
+      // memset((void *)phdr.p_vaddr, 0, phdr.p_memsz);
+      // fs_lseek(fd, phdr.p_offset, 0);
+      // fs_read(fd, (void *)phdr.p_vaddr, phdr.p_filesz);
       // ramdisk_read((void *)phdr.p_vaddr, phdr.p_offset, phdr.p_filesz);
     }
   }
@@ -58,8 +73,11 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   //   Log("1%d: %s", i, envp[i]);
 
   // for (int i = 0; envp[i] != NULL; i++)
+  protect(&pcb->as);
+  // Log("before: %p", pcb->as.ptr);
   //   Log("2%d: %s", i, envp[i]);
   uintptr_t ustack = (uintptr_t)(new_page(8) + 8 * PGSIZE);
+  map(&pcb->as, pcb->as.area.end - 4 * PGSIZE, (void *)ustack, 0);
   // for (int i = 0; envp[i] != NULL; i++)
   //   Log("3%d: %s", i, envp[i]);
   uintptr_t num_argv = 0;
@@ -114,7 +132,9 @@ void context_uload(PCB *pcb, const char *filename, char *const argv[], char *con
   uintptr_t entry = loader(pcb, filename);
   // Log("uload finished!");
   Area kstack = {(void *)pcb->stack, (void *)(pcb->stack + 1)};
-  pcb->cp = ucontext(NULL, kstack, (void *)entry);
+  // Log("after: %p", pcb->as.ptr);
+  pcb->cp = ucontext(&pcb->as, kstack, (void *)entry);
+  // Log("after: %p", pcb->as.ptr);
   // 需要思考的是这里为啥会污染envp和argv。
   pcb->cp->GPRx = ustack;
   // Log("uload finished!");
