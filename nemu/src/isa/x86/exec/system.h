@@ -21,6 +21,25 @@ static inline def_EHelper(lidt) {
   print_asm_template1(lidt);
 }
 
+static inline def_EHelper(lgdt) {
+  rtl_lm(s, s0, s->isa.mbase, s->isa.moff, 2);
+  cpu.GDTR.limit = *s0;
+  rtl_lm(s, s1, s->isa.mbase, s->isa.moff + 2, 4);
+  if (id_dest->width == 2)
+    cpu.GDTR.base = *s1 & 0x00ffffff;
+  else
+    cpu.GDTR.base = *s1;
+  // TODO();
+  print_asm_template1(lgdt);
+}
+
+static inline def_EHelper(ltr)
+{
+  cpu.TR.val = *ddest;
+  // TODO();
+  print_asm_template1(ltr);
+}
+
 static inline def_EHelper(mov_r2cr) {
   switch (id_dest->reg)
   {
@@ -81,12 +100,20 @@ static inline def_EHelper(int) {
 #endif
 }
 
+void set_ksp(uint32_t val);
 static inline def_EHelper(iret) {
   rtl_pop(s, s0);
   rtl_pop(s, s1);
-  cpu.CS = *s1;
+  cpu.CS.val = *s1;
   rtl_pop(s, &cpu.eflags.val);
   rtl_jr(s, s0);
+  if (cpu.CS.RPL == 0x3) {
+    rtl_pop(s, s0);
+    rtl_pop(s, s1);
+    cpu.SS.val = *s1;
+    set_ksp(cpu.esp);
+    rtl_mv(s, &cpu.esp, s0);
+  }
   // TODO();
   print_asm("iret");
 

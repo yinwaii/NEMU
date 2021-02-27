@@ -30,12 +30,12 @@ union {
   /* In NEMU, rtlreg_t is exactly uint32_t. This makes RTL instructions
    * in PA2 able to directly access these registers.
    */
-	struct{
+	struct {
 		rtlreg_t eax, ecx, edx, ebx, esp, ebp, esi, edi;
 	};
 };
   vaddr_t pc;
-  union{
+  union {
     struct {
       word_t CF : 1;
       unsigned : 1;
@@ -58,7 +58,14 @@ union {
     };
     word_t val;
   } eflags;
-  uint16_t CS, SS, DS, ES, FS, GS;
+  union {
+    struct {
+      word_t RPL : 2;
+      word_t TI : 1;
+      word_t INDEX : 13;
+    };
+    uint16_t val;
+  } CS, SS, DS, ES, FS, GS, TR;
   union {
     struct {
       uint16_t limit : 16;

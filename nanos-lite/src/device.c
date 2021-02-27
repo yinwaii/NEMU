@@ -1,4 +1,5 @@
 #include <common.h>
+#include <loader.h>
 
 #if defined(MULTIPROGRAM) && !defined(TIME_SHARING)
 # define MULTIPROGRAM_YIELD() yield()
@@ -51,6 +52,18 @@ size_t events_read(void *buf, size_t offset, size_t len) {
     return 0;
   if (!ev.keydown)
     str[1] = 'u';
+  if (ev.keycode == AM_KEY_F1)
+  {
+    fg_pcb = 1;
+  }
+  else if (ev.keycode == AM_KEY_F2)
+  {
+    fg_pcb = 2;
+  }
+  else if (ev.keycode == AM_KEY_F3)
+  {
+    fg_pcb = 3;
+  }
   strcat(str, keyname[ev.keycode]);
   strcat(str, "\n");
   int tmp_len = strlen(str);

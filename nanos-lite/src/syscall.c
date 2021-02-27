@@ -46,8 +46,8 @@ void sys_yield(Context *c)
 void sys_exit(Context *c)
 {
   Log("Exit Code: %d", c->GPR2);
-  halt(c->GPR1);
-  context_uload(&pcb[0], "/bin/menu", NULL, NULL);
+  // halt(c->GPR1);
+  context_uload(current, "/bin/menu", NULL, NULL);
   switch_boot_pcb();
   yield();
   c->GPRx = 0;

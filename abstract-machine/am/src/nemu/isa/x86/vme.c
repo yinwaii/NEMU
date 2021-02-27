@@ -106,7 +106,8 @@ void map(AddrSpace *as, void *va, void *pa, int prot) {
 Context* ucontext(AddrSpace *as, Area kstack, void *entry) {
   Context *context = (Context *)kstack.end - 1;
   memset(context, 0, sizeof(context));
-  context->cs = 0x8;
+  context->cs = USEL(3);
+  context->ss3 = USEL(4);
   context->cr3 = as->ptr;
   context->eip = (uintptr_t)entry;
   context->eflags |= (1 << 9);

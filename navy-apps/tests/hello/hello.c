@@ -8,10 +8,6 @@ int main(int argc, char *argv[], char *envp[]) {
   while (1) {
     j ++;
     if (j == 10000) {
-      for (int k = 0; k < argc; k++)
-        printf("argv: %s\n", argv[k]);
-      for (int k = 0; k < argc; k++)
-        printf("envp: %s\n", envp[k]);
       printf("Hello World from Navy-apps for the %dth time!\n", i++);
       j = 0;
     }

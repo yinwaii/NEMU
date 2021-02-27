@@ -18,6 +18,7 @@ typedef union {
 
 #define MAX_NR_PROC 4
 
+extern int fg_pcb;
 extern PCB pcb_boot;
 extern PCB *current;
 extern PCB pcb[MAX_NR_PROC];
