@@ -85,6 +85,7 @@ union {
     };
     vaddr_t val;
   } CR3;
+  bool INTR;
 } x86_CPU_state;
 
 // decode

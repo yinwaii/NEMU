@@ -24,7 +24,7 @@ Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->irq) {
-      case 0x32:
+      case 32:
         ev.event = EVENT_IRQ_TIMER;
         break;
       case 0x80:
@@ -34,6 +34,7 @@ Context* __am_irq_handle(Context *c) {
         ev.event = EVENT_YIELD;
         break;
       default:
+        // printf("IRQ %d\n", c->irq);
         ev.event = EVENT_ERROR;
         break;
     }
@@ -80,6 +81,7 @@ Context* kcontext(Area kstack, void (*entry)(void *), void *arg) {
   context->esp = (uintptr_t)kstack.end;
   context->cr3 = NULL;
   context->irq = 0x81;
+  context->eflags |= (1 << 9);
   context->GPR1 = (uintptr_t)arg;
   context->GPR2 = (uintptr_t)entry;
   return context;

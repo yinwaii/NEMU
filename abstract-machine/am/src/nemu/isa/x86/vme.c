@@ -109,6 +109,7 @@ Context* ucontext(AddrSpace *as, Area kstack, void *entry) {
   context->cs = 0x8;
   context->cr3 = as->ptr;
   context->eip = (uintptr_t)entry;
+  context->eflags |= (1 << 9);
   // context->esp = (uintptr_t)kstack.end;
   context->irq = 0x81;
   // context->GPRx = (uintptr_t)heap.end;
